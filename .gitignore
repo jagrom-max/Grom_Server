@@ -1,0 +1,57 @@
+# =============================================================================
+# GROM SERVER - .gitignore
+# =============================================================================
+
+# Senhas e credenciais
+*.credentials
+*.key
+*.pem
+*.secret
+.env
+.env.*
+!.env.example
+
+# Chaves SSH
+id_rsa
+id_ed25519
+*.pub
+
+# Backups locais
+*.bak
+*.old
+*.orig
+*.swp
+*~
+
+# Logs
+*.log
+logs/
+
+# Diretórios de dados
+data/
+dumps/
+
+# Cache
+__pycache__/
+*.pyc
+*.pyo
+.cache/
+node_modules/
+vendor/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Arquivos de lock de banco
+*.lck
+
+# Borg passphrase
+.borg_passphrase
+borg-keys/

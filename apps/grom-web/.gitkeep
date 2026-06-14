@@ -1,0 +1,4 @@
+# Grom_web - Aplicação PHP
+# Este diretório conterá o código-fonte da aplicação Grom_web
+# Deploy via Git no container CT100 (10.0.1.10)
+# DocumentRoot: /var/www/web.grom.seg.br/public/

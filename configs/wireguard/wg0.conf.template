@@ -1,0 +1,32 @@
+# =============================================================================
+# GROM SERVER - WireGuard Server Template
+# Arquivo: /etc/wireguard/wg0.conf
+# NOTA: Este é um template. O script setup-wireguard.sh gera a config real
+#       com chaves únicas automaticamente.
+# =============================================================================
+
+[Interface]
+Address = 10.0.10.1/24
+ListenPort = 51820
+PrivateKey = <SERVER_PRIVATE_KEY>
+
+# Regras de firewall automáticas (PostUp/PostDown)
+PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+
+# --- Clientes ---
+
+# Cliente 1 - Admin Principal (10.0.10.2)
+[Peer]
+PublicKey = <CLIENT1_PUBLIC_KEY>
+PresharedKey = <CLIENT1_PSK>
+AllowedIPs = 10.0.10.2/32
+
+# Cliente 2 - Notebook (10.0.10.3)
+[Peer]
+PublicKey = <CLIENT2_PUBLIC_KEY>
+PresharedKey = <CLIENT2_PSK>
+AllowedIPs = 10.0.10.3/32
+
+# Adicionar mais clientes conforme necessário
+# Usar: grom-vpn-add-client.sh <nome-do-cliente>

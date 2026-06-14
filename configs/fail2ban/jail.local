@@ -1,0 +1,70 @@
+# =============================================================================
+# GROM SERVER - Fail2Ban Configuration
+# =============================================================================
+
+[DEFAULT]
+# Ban por 1 hora após 3 tentativas em 10 minutos
+bantime = 3600
+findtime = 600
+maxretry = 3
+
+# Ação de ban via UFW
+banaction = ufw
+banaction_allports = ufw
+
+# Backend
+backend = systemd
+
+# IPs que nunca serão banidos (rede interna + VPN)
+ignoreip = 127.0.0.1/8 10.0.1.0/24 10.0.10.0/24
+
+# Email de notificação (opcional)
+# destemail = admin@grom.seg.br
+# sender = fail2ban@grom.seg.br
+# mta = sendmail
+# action = %(action_mwl)s
+
+# --------------------------------------------------------------------------
+# Jails
+# --------------------------------------------------------------------------
+
+[sshd]
+enabled = true
+port = ssh
+maxretry = 3
+bantime = 3600
+
+[nginx-http-auth]
+enabled = true
+port = http,https
+maxretry = 5
+bantime = 1800
+logpath = /var/log/nginx/*error*.log
+
+[nginx-limit-req]
+enabled = true
+port = http,https
+maxretry = 10
+bantime = 600
+logpath = /var/log/nginx/*error*.log
+
+[nginx-botsearch]
+enabled = true
+port = http,https
+maxretry = 2
+bantime = 86400
+logpath = /var/log/nginx/*access*.log
+
+[mysqld-auth]
+enabled = true
+port = 3306
+maxretry = 5
+bantime = 3600
+logpath = /var/log/mysql/error.log
+
+[recidive]
+enabled = true
+bantime = 604800
+findtime = 86400
+maxretry = 3
+logpath = /var/log/fail2ban.log

@@ -1,0 +1,4 @@
+# Grom Documental - Aplicação Python (FastAPI)
+# Este diretório conterá o código-fonte do Grom Documental
+# Deploy via Git no container CT100 (10.0.1.10)
+# App path: /var/www/docs.grom.seg.br/app/
