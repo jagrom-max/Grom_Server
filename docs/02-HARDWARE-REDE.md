@@ -41,14 +41,118 @@ BIOS → Power:
 
 ---
 
-## Topologia de Rede
+## Separação WAN/LAN com Duas Interfaces de Rede
+
+### Por que o Adaptador Ugreen é Essencial
+
+O Mini PC Beelink possui **apenas 1 porta Ethernet onboard**. Para operar um firewall
+real (OPNsense) é obrigatório ter **2 interfaces de rede fisicamente separadas**:
+
+- **Interface WAN**: Recebe o tráfego da internet (não filtrado, potencialmente malicioso)
+- **Interface LAN**: Distribui o tráfego já filtrado e autorizado para a rede interna
+
+O adaptador Ugreen USB-A 3.0 para RJ45 2.5G **cria essa segunda interface**, permitindo
+a separação física completa entre o tráfego externo e interno.
+
+> ⚠️ **Sem o adaptador Ugreen, não é possível operar o OPNsense como firewall com
+> separação real de redes.** As duas portas são indispensáveis.
+
+### Atribuição das Interfaces
+
+| Interface Física | Localização | Nome Linux | Bridge Proxmox | Função | Velocidade |
+|---|---|---|---|---|---|
+| **ETH onboard** | Porta RJ45 traseira do Mini PC | `eth0` | `vmbr0` | **WAN** (Internet) | 1 Gbps |
+| **Ugreen USB** | Conectado em porta USB-A 3.0 | `enx<MAC>` | `vmbr1` | **LAN** (Rede interna) | 2.5 Gbps |
+
+### Por que essa distribuição?
+
+- **ETH onboard → WAN**: A porta onboard é mais estável (driver nativo no kernel,
+  nunca desconecta fisicamente). Se a WAN cair, perde-se internet — por isso usa-se
+  a interface mais confiável.
+- **Ugreen USB → LAN**: É mais rápida (2.5 Gbps vs 1 Gbps), ideal para o tráfego
+  interno entre containers que é mais intenso. Se a USB desconectar momentaneamente,
+  os containers continuam se comunicando via bridge virtual interna do Proxmox.
+
+### Fluxo do Tráfego (passo a passo)
 
 ```
-[ISP 650Mbps] → [Mercusys AX3000 (AP Mode)] → Cat6 → [Mini PC ETH0 = WAN]
-                                                       [Mini PC USB Ugreen = LAN]
-                                                              ↓
+1. INTERNET (650 Mbps)
+       │
+       ▼
+2. Mercusys AX3000 (modo Access Point - apenas repassa tráfego)
+       │
+       ▼ Cabo Cat6
+3. ╔═══════════════════════════════════════════════════════════════╗
+   ║  MINI PC - PORTA ONBOARD (eth0)  ←── ENTRADA WAN            ║
+   ║       │                                                       ║
+   ║       ▼                                                       ║
+   ║  ┌─────────────────────────────────────────────────────────┐  ║
+   ║  │  PROXMOX VE - vmbr0 (Bridge WAN)                       │  ║
+   ║  │       │                                                 │  ║
+   ║  │       ▼                                                 │  ║
+   ║  │  ┌──────────────────────────────┐                       │  ║
+   ║  │  │  OPNsense VM                 │                       │  ║
+   ║  │  │  Interface WAN (vtnet0)      │                       │  ║
+   ║  │  │       │                      │                       │  ║
+   ║  │  │  [FIREWALL + IDS/IPS]        │  ← Filtra, analisa,  │  ║
+   ║  │  │  [Suricata] [Regras]         │    bloqueia ameaças   │  ║
+   ║  │  │       │                      │                       │  ║
+   ║  │  │  Interface LAN (vtnet1)      │                       │  ║
+   ║  │  └──────────┬───────────────────┘                       │  ║
+   ║  │             │                                           │  ║
+   ║  │             ▼                                           │  ║
+   ║  │  PROXMOX VE - vmbr1 (Bridge LAN)                       │  ║
+   ║  │       │         │         │         │         │         │  ║
+   ║  │       ▼         ▼         ▼         ▼         ▼         │  ║
+   ║  │    CT100     CT101     CT102     CT103     CT104        │  ║
+   ║  │    Web       MySQL     Backup    Monitor   VPN          │  ║
+   ║  │    .10       .11       .12       .13       .14          │  ║
+   ║  └─────────────────────────────────────────────────────────┘  ║
+   ║       │                                                       ║
+   ║       ▼                                                       ║
+   ║  MINI PC - PORTA USB UGREEN (enx...)  ←── SAÍDA LAN          ║
+   ╚═══════════════════════════════════════════════════════════════╝
+       │
+       ▼ Cabo Cat6
+4. Switch TP-Link TL-SG108 (8 portas)
+       │         │         │
+       ▼         ▼         ▼
+   PC local   Impressora  Outros dispositivos
+   (manutenção)            (conectados via cabo)
+```
+
+### Resultado: Segurança por Separação Física
+
+**Nenhum pacote da internet chega à rede interna sem passar pelo firewall OPNsense.**
+
+O OPNsense atua como o **único ponto de passagem** entre WAN e LAN:
+- Analisa cada conexão de entrada com regras de firewall
+- Executa IDS/IPS (Suricata) para detectar padrões maliciosos
+- Aplica NAT para traduzir endereços
+- Encaminha apenas o tráfego autorizado (port forwarding)
+- Bloqueia todo o resto (política default deny)
+
+### Papel do Switch TP-Link TL-SG108
+
+O switch fica na **saída LAN** (porta Ugreen) e serve para:
+- Conectar dispositivos físicos à rede interna (PC de manutenção, etc.)
+- Expandir o número de portas LAN disponíveis (8 portas)
+- Como é não-gerenciável, funciona plug-and-play sem configuração
+
+> **Nota**: Os containers LXC não precisam do switch — eles se comunicam via bridge
+> virtual (`vmbr1`) dentro do Proxmox. O switch é para dispositivos físicos externos.
+
+---
+
+## Topologia de Rede Resumida
+
+```
+[ISP 650Mbps] → [Mercusys AX3000 (AP)] → Cat6 → [Mini PC ETH0 = WAN]
+                                                    ↕ OPNsense Firewall
+                                                  [Mini PC USB Ugreen = LAN]
+                                                         │ Cat6
                                                   [Switch TP-Link TL-SG108]
-                                                     ↓ (dispositivos LAN)
+                                                    │ (dispositivos físicos)
 ```
 
 ### Endereçamento IP
