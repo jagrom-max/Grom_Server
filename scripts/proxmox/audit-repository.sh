@@ -158,6 +158,7 @@ require_dir "docs"
 for path in \
     "scripts/deploy-all.sh" \
     "scripts/build-release.sh" \
+    "scripts/lab/export-release-usb.ps1" \
     "scripts/lab/run-safe-lab-checks.ps1" \
     "scripts/lab/preview-dashboard.ps1" \
     "scripts/proxmox/audit-repository.sh" \
@@ -185,6 +186,7 @@ for path in \
     "apps/grom-seg/public/server/assets/logo_grom_menu.png" \
     "docs/19-RUNBOOK-PRIMEIRA-IMPLANTACAO.md" \
     "docs/22-VALIDACAO-POS-DEPLOY.md" \
+    "docs/33-IMPLANTACAO-DEFINITIVA-EQUIPAMENTO.md" \
     "docs/31-GO-NOGO-PRODUCAO.md"; do
     require_file "$path"
 done

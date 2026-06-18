@@ -45,6 +45,12 @@ URL padrao:
 http://127.0.0.1:8090/server/
 ```
 
+Para exportar o pacote candidato para pendrive, HD externo ou pasta de transferencia:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/lab/export-release-usb.ps1 -Destination X:\CAMINHO
+```
+
 Em Linux/Git Bash:
 
 ```bash

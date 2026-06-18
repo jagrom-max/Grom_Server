@@ -24,6 +24,7 @@ Este checklist organiza o que deve ficar pronto antes da instalacao fisica do Gr
 - Gerar `downloads/manifest.json` com `scripts/downloads/prepare-offline-kit.ps1`.
 - Gerar pacote de release com `bash scripts/build-release.sh`.
 - No Windows de desenvolvimento, preferir `powershell -ExecutionPolicy Bypass -File scripts/lab/prepare-local-release.ps1` para validar laboratorio, dashboard e release em uma unica rotina.
+- Exportar pacote/checksum para midia controlada com `powershell -ExecutionPolicy Bypass -File scripts/lab/export-release-usb.ps1 -Destination X:\CAMINHO`.
 - Conferir `dist/grom-scripts.zip.sha256` ou `dist/grom-scripts.tar.gz.sha256`, conforme o formato gerado.
 - No Proxmox final, executar primeiro `bash /root/grom-scripts/scripts/proxmox/final-local-deploy.sh --skip-deploy`.
 - Definir politica de retencao de documentos e logs.

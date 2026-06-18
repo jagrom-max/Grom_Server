@@ -8,8 +8,10 @@
 - Endurecido carregamento do dashboard com timeout, fallback seguro e bloqueio de requisicoes concorrentes.
 - Adicionado `scripts/lab/preview-dashboard.ps1` para visualizar o painel por HTTP local sem depender do preview do editor.
 - Adicionado `scripts/lab/prepare-local-release.ps1` para validar laboratorio, preview e gerar pacote candidato local.
+- Adicionado `scripts/lab/export-release-usb.ps1` para copiar pacote/checksum e gerar instrucoes de transferencia para o Proxmox.
 - Auditoria local passou a exigir os assets do dashboard antes de liberar pacote.
 - Adicionado `scripts/proxmox/final-local-deploy.sh` como orquestrador do host definitivo, reunindo auditoria, pre-deploy, baseline, deploy, pos-deploy, healthcheck e Go/No-Go.
+- Adicionado `docs/33-IMPLANTACAO-DEFINITIVA-EQUIPAMENTO.md` como roteiro curto de transferencia e execucao no mini PC definitivo.
 
 ## [1.1.2] - 2026-06-18
 
