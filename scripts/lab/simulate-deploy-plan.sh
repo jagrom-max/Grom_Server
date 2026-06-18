@@ -149,6 +149,7 @@ require_file "scripts/lab/export-release-usb.ps1"
 require_file "docs/31-GO-NOGO-PRODUCAO.md"
 require_file "docs/32-DESENVOLVIMENTO-SEGURO-LAB.md"
 require_file "docs/33-IMPLANTACAO-DEFINITIVA-EQUIPAMENTO.md"
+require_file "docs/34-IMPLANTACAO-EM-BANCADA.md"
 
 echo ""
 echo "== Env de laboratorio =="

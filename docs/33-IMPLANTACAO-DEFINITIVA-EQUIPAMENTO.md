@@ -35,6 +35,8 @@ grom-server-release/
   LEIA-ME-IMPLANTACAO.txt
 ```
 
+Para executar primeiro em bancada, antes da rede destinataria, siga tambem `docs/34-IMPLANTACAO-EM-BANCADA.md`.
+
 ## Sequencia no Proxmox
 
 Copiar os arquivos para `/root` e executar:

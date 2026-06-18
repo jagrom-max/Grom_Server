@@ -12,6 +12,7 @@
 - Auditoria local passou a exigir os assets do dashboard antes de liberar pacote.
 - Adicionado `scripts/proxmox/final-local-deploy.sh` como orquestrador do host definitivo, reunindo auditoria, pre-deploy, baseline, deploy, pos-deploy, healthcheck e Go/No-Go.
 - Adicionado `docs/33-IMPLANTACAO-DEFINITIVA-EQUIPAMENTO.md` como roteiro curto de transferencia e execucao no mini PC definitivo.
+- Adicionado `docs/34-IMPLANTACAO-EM-BANCADA.md` para orientar a implantacao no equipamento definitivo antes da rede destinataria.
 
 ## [1.1.2] - 2026-06-18
 

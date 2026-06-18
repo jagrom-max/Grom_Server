@@ -187,6 +187,7 @@ for path in \
     "docs/19-RUNBOOK-PRIMEIRA-IMPLANTACAO.md" \
     "docs/22-VALIDACAO-POS-DEPLOY.md" \
     "docs/33-IMPLANTACAO-DEFINITIVA-EQUIPAMENTO.md" \
+    "docs/34-IMPLANTACAO-EM-BANCADA.md" \
     "docs/31-GO-NOGO-PRODUCAO.md"; do
     require_file "$path"
 done
