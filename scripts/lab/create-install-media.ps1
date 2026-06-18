@@ -6,6 +6,7 @@
 param(
     [string]$Destination = "D:\GROM_SERVER_INSTALL",
     [switch]$SkipBuild,
+    [switch]$IncludeProxmoxIso,
     [switch]$Force
 )
 
@@ -45,6 +46,7 @@ try {
     $FilesDir = Join-Path $MediaRoot "files"
     $DocsDir = Join-Path $MediaRoot "docs"
     $ToolsDir = Join-Path $MediaRoot "tools"
+    $IsoDir = Join-Path $MediaRoot "proxmox-iso"
 
     New-Item -ItemType Directory -Path $FilesDir -Force | Out-Null
     New-Item -ItemType Directory -Path $DocsDir -Force | Out-Null
@@ -53,6 +55,7 @@ try {
     Copy-Item -LiteralPath $Package -Destination (Join-Path $FilesDir "grom-scripts.tar.gz") -Force
     Copy-Item -LiteralPath $Checksum -Destination (Join-Path $FilesDir "grom-scripts.tar.gz.sha256") -Force
     Copy-Item -LiteralPath (Join-Path $Root "configs\grom.env.example") -Destination (Join-Path $FilesDir "grom.env.example") -Force
+    Copy-Item -LiteralPath (Join-Path $Root "scripts\lab\download-proxmox-iso.ps1") -Destination (Join-Path $ToolsDir "download-proxmox-iso.ps1") -Force
     Copy-Item -LiteralPath (Join-Path $Root "docs\34-IMPLANTACAO-EM-BANCADA.md") -Destination (Join-Path $DocsDir "34-IMPLANTACAO-EM-BANCADA.md") -Force
     Copy-Item -LiteralPath (Join-Path $Root "docs\33-IMPLANTACAO-DEFINITIVA-EQUIPAMENTO.md") -Destination (Join-Path $DocsDir "33-IMPLANTACAO-DEFINITIVA-EQUIPAMENTO.md") -Force
     Copy-Item -LiteralPath (Join-Path $Root "docs\35-MIDIA-INSTALACAO-COMPLETA.md") -Destination (Join-Path $DocsDir "35-MIDIA-INSTALACAO-COMPLETA.md") -Force
@@ -202,6 +205,7 @@ Conteudo:
 - files/grom-scripts.tar.gz.sha256
 - files/grom.env.example
 - tools/install-grom-server.sh
+- tools/download-proxmox-iso.ps1
 - docs/01-FORMATACAO-PROXMOX.md
 - docs/33-IMPLANTACAO-DEFINITIVA-EQUIPAMENTO.md
 - docs/34-IMPLANTACAO-EM-BANCADA.md
@@ -211,25 +215,30 @@ Checksum esperado:
 __HASH_LINE__
 
 Uso recomendado:
-1. Formatar a maquina definitiva pelo instalador oficial do Proxmox VE.
-2. Copiar esta pasta para o Proxmox.
-3. Rodar ensaio:
+1. Se o ISO ainda nao estiver nesta midia, baixar em uma maquina com internet:
+
+   powershell -ExecutionPolicy Bypass -File tools\download-proxmox-iso.ps1 -Destination proxmox-iso
+
+2. Gravar o ISO do Proxmox em pendrive bootavel separado, ou usar Ventoy.
+3. Formatar a maquina definitiva pelo instalador oficial do Proxmox VE.
+4. Copiar esta pasta para o Proxmox.
+5. Rodar ensaio:
 
    cd /CAMINHO/grom-server-install
    bash tools/install-grom-server.sh --skip-deploy
 
-4. Editar /etc/grom/grom.env com segredos reais, se o instalador solicitar.
-5. Executar implantacao de bancada:
+6. Editar /etc/grom/grom.env com segredos reais, se o instalador solicitar.
+7. Executar implantacao de bancada:
 
    bash tools/install-grom-server.sh --confirm-deploy
 
-6. Antes da rede destinataria, validar:
+8. Antes da rede destinataria, validar:
 
    bash /root/grom-scripts/scripts/proxmox/post-deploy-validation.sh
    bash /root/grom-scripts/scripts/proxmox/operational-health-check.sh
    bash /root/grom-scripts/scripts/proxmox/restore-drill.sh
 
-7. Na rede destinataria:
+9. Na rede destinataria:
 
    bash tools/install-grom-server.sh --confirm-deploy --public-target=grom.seg.br
 
@@ -243,6 +252,22 @@ confirmada na tela do instalador Proxmox para evitar perda acidental de dados.
 
     Set-Content -LiteralPath (Join-Path $DocsDir "01-FORMATACAO-PROXMOX.md") -Value $FormatDoc -Encoding UTF8
     Set-Content -LiteralPath (Join-Path $MediaRoot "LEIA-ME-PRIMEIRO.txt") -Value $Readme -Encoding UTF8
+
+    if ($IncludeProxmoxIso) {
+        $IsoArgs = @(
+            "-ExecutionPolicy", "Bypass",
+            "-File", (Join-Path $Root "scripts\lab\download-proxmox-iso.ps1"),
+            "-Destination", $IsoDir
+        )
+        if ($Force) {
+            $IsoArgs += "-Force"
+        }
+
+        & powershell @IsoArgs
+        if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+        }
+    }
 
     Get-ChildItem -LiteralPath $MediaRoot -Recurse -File |
         Select-Object FullName,Length,LastWriteTime

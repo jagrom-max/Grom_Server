@@ -12,6 +12,19 @@ No Windows:
 powershell -ExecutionPolicy Bypass -File scripts/lab/create-install-media.ps1 -Destination D:\GROM_SERVER_INSTALL -Force
 ```
 
+Para incluir tambem o ISO oficial do Proxmox VE na midia:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/lab/create-install-media.ps1 -Destination D:\GROM_SERVER_INSTALL -IncludeProxmoxIso -Force
+```
+
+Se a midia ja foi criada e voce quer baixar apenas o ISO:
+
+```powershell
+cd D:\GROM_SERVER_INSTALL\grom-server-install
+powershell -ExecutionPolicy Bypass -File tools\download-proxmox-iso.ps1 -Destination proxmox-iso
+```
+
 O resultado esperado:
 
 ```text
@@ -24,6 +37,8 @@ D:\GROM_SERVER_INSTALL\grom-server-install\
 - `files/grom-scripts.tar.gz.sha256`
 - `files/grom.env.example`
 - `tools/install-grom-server.sh`
+- `tools/download-proxmox-iso.ps1`
+- `proxmox-iso/proxmox-ve_9.2-1.iso`, quando `-IncludeProxmoxIso` for usado
 - `docs/01-FORMATACAO-PROXMOX.md`
 - `docs/33-IMPLANTACAO-DEFINITIVA-EQUIPAMENTO.md`
 - `docs/34-IMPLANTACAO-EM-BANCADA.md`

@@ -159,6 +159,7 @@ for path in \
     "scripts/deploy-all.sh" \
     "scripts/build-release.sh" \
     "scripts/lab/create-install-media.ps1" \
+    "scripts/lab/download-proxmox-iso.ps1" \
     "scripts/lab/export-release-usb.ps1" \
     "scripts/lab/run-safe-lab-checks.ps1" \
     "scripts/lab/preview-dashboard.ps1" \

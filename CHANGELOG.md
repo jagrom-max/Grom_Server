@@ -10,6 +10,7 @@
 - Adicionado `scripts/lab/prepare-local-release.ps1` para validar laboratorio, preview e gerar pacote candidato local.
 - Adicionado `scripts/lab/export-release-usb.ps1` para copiar pacote/checksum e gerar instrucoes de transferencia para o Proxmox.
 - Adicionado `scripts/lab/create-install-media.ps1` para gerar midia completa assistida em `D:\`, com pacote, checksum, instalador pos-Proxmox e roteiro de formatacao.
+- Adicionado `scripts/lab/download-proxmox-iso.ps1` para baixar e validar o ISO oficial do Proxmox VE dentro da midia de instalacao.
 - Auditoria local passou a exigir os assets do dashboard antes de liberar pacote.
 - Adicionado `scripts/proxmox/final-local-deploy.sh` como orquestrador do host definitivo, reunindo auditoria, pre-deploy, baseline, deploy, pos-deploy, healthcheck e Go/No-Go.
 - Adicionado `docs/33-IMPLANTACAO-DEFINITIVA-EQUIPAMENTO.md` como roteiro curto de transferencia e execucao no mini PC definitivo.
