@@ -136,6 +136,11 @@ run_and_capture "validate-deploy-config-lab" \
         --env="$ENV_FILE" \
         --scripts-dir="$ROOT_DIR"
 
+run_and_capture "simulate-deploy-plan" \
+    bash "${ROOT_DIR}/scripts/lab/simulate-deploy-plan.sh" \
+        --env="$ENV_FILE" \
+        --report="${REPORT_DIR}/deploy-plan.log"
+
 if [ "$RUN_BUILD" -eq 1 ]; then
     run_and_capture "build-release" \
         bash "${ROOT_DIR}/scripts/build-release.sh"

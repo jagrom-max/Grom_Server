@@ -51,6 +51,7 @@ O script de laboratorio:
 - usa dominio `.invalid`, evitando alvo real por acidente;
 - executa `scripts/proxmox/audit-repository.sh`;
 - executa `scripts/proxmox/validate-deploy-config.sh --strict` apontando para o workspace local;
+- executa `scripts/lab/simulate-deploy-plan.sh` para gerar o plano seguro que seria seguido no Proxmox definitivo;
 - opcionalmente executa `scripts/build-release.sh`;
 - grava relatorios em `.lab/reports/`.
 
@@ -64,6 +65,22 @@ Ele nao executa:
 - comandos de firewall;
 - escrita em `/etc/grom`;
 - alteracoes de rede.
+
+## Simulacao do deploy
+
+Para gerar somente o plano simulado:
+
+```bash
+bash scripts/lab/simulate-deploy-plan.sh
+```
+
+Relatorio gerado:
+
+```text
+.lab/reports/deploy-plan.log
+```
+
+A simulacao valida artefatos, variaveis ficticias, IDs esperados de VM/CT e a ordem operacional que sera usada no hardware final. Ela nao interpreta nem executa o `deploy-all.sh`; o objetivo e transformar a implantacao futura em checklist auditavel.
 
 ## Criterios para continuar desenvolvendo
 
@@ -83,6 +100,7 @@ O pacote candidato so deve ser considerado se:
 
 - auditoria local terminar com zero falhas;
 - validacao pre-deploy de laboratorio terminar com zero falhas;
+- simulacao de deploy terminar com zero falhas;
 - release for gerado com manifesto e checksum;
 - `git diff --check` nao apontar problemas;
 - nao houver segredos reais em arquivos rastreados.

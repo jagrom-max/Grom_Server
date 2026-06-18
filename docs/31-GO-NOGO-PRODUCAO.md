@@ -38,6 +38,8 @@ powershell -ExecutionPolicy Bypass -File scripts/lab/run-safe-lab-checks.ps1 -Bu
 
 Esse gate nao substitui a validacao no Proxmox. Ele existe para impedir que o projeto avance para hardware definitivo antes de passar por auditoria, validacao pre-deploy com variaveis ficticias fortes e geracao de release limpa.
 
+O gate tambem gera `.lab/reports/deploy-plan.log`, que deve ser lido como checklist antes de qualquer execucao real.
+
 ## Percentual de maturidade
 
 Estimativa operacional nesta fase:

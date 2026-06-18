@@ -4,6 +4,7 @@
 
 ### Desenvolvimento seguro
 - Adicionado fluxo de laboratorio em `scripts/lab/run-safe-lab-checks.sh` e `.ps1` para validar o repositorio sem tocar Proxmox, `/etc`, rede, containers ou servicos reais.
+- Adicionado `scripts/lab/simulate-deploy-plan.sh` para gerar plano auditavel da implantacao sem executar comandos reais.
 - Adicionado ambiente ficticio `.lab/grom.env` gerado localmente, com segredos falsos fortes e dominio `.invalid`.
 - Formalizado o amadurecimento em unidade separada antes de qualquer implantacao definitiva.
 
