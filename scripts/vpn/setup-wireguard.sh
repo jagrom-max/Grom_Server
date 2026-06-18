@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # GROM SERVER - Setup WireGuard VPN
-# Executar DENTRO do container CT104 (grom-vpn)
+# Executar DENTRO do container CT114 (grom-vpn)
 # TOTALMENTE AUTOMATIZADO - Gera server + 5 configs de cliente
 # =============================================================================
 
@@ -46,6 +46,7 @@ log "Chaves do servidor geradas"
 # 4. Gerar chaves dos clientes
 info "Gerando chaves de ${NUM_CLIENTS} clientes..."
 mkdir -p /etc/wireguard/clients
+chmod 700 /etc/wireguard/clients
 
 PEER_CONFIGS=""
 CLIENT_NAMES=("admin-principal" "notebook" "celular-1" "celular-2" "emergencia")
@@ -112,13 +113,9 @@ Address = ${VPN_SUBNET}.1/24
 ListenPort = ${VPN_PORT}
 PrivateKey = ${SERVER_PRIVATE}
 
-# Regras de firewall automáticas
-PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o ${INTERFACE} -j MASQUERADE
-PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o ${INTERFACE} -j MASQUERADE
-
-# Log de conexões
-PostUp = echo "[$(date)] WireGuard UP" >> /var/log/wireguard.log
-PostDown = echo "[$(date)] WireGuard DOWN" >> /var/log/wireguard.log
+# Regras de firewall automaticas e log operacional
+PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o ${INTERFACE} -j MASQUERADE; /bin/sh -c 'echo "[\$(date)] WireGuard UP" >> /var/log/wireguard.log'
+PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o ${INTERFACE} -j MASQUERADE; /bin/sh -c 'echo "[\$(date)] WireGuard DOWN" >> /var/log/wireguard.log'
 ${PEER_CONFIGS}
 SERVEREOF
 
@@ -191,7 +188,41 @@ ADDEOF
 chmod +x /usr/local/bin/grom-vpn-add-client.sh
 log "Script de adição de clientes instalado"
 
-# 9. Monitoramento automático de VPN
+# 9. Script para revogar clientes
+cat > /usr/local/bin/grom-vpn-revoke-client.sh << 'REVOKEEOF'
+#!/bin/bash
+# Uso: grom-vpn-revoke-client.sh <nome-do-cliente>
+set -euo pipefail
+CLIENT_NAME="${1:-}"
+[ -z "$CLIENT_NAME" ] && { echo "Uso: $0 <nome>"; exit 1; }
+
+cd /etc/wireguard
+CLIENT_CONF="clients/${CLIENT_NAME}.conf"
+CLIENT_PUB_FILE="clients/${CLIENT_NAME}_public.key"
+
+if [ ! -f "$CLIENT_PUB_FILE" ]; then
+    echo "Cliente nao encontrado: ${CLIENT_NAME}" >&2
+    exit 1
+fi
+
+PUB=$(cat "$CLIENT_PUB_FILE")
+wg set wg0 peer "$PUB" remove 2>/dev/null || true
+
+awk -v client="Cliente: ${CLIENT_NAME}" '
+    $0 ~ "^# " client " " { skip=1; next }
+    skip && $0 == "[Peer]" { next }
+    skip && /^PublicKey|^PresharedKey|^AllowedIPs/ { next }
+    skip && NF == 0 { skip=0; next }
+    !skip { print }
+' wg0.conf > wg0.conf.tmp
+install -m 600 wg0.conf.tmp wg0.conf
+rm -f wg0.conf.tmp "$CLIENT_CONF" "clients/${CLIENT_NAME}_private.key" "clients/${CLIENT_NAME}_public.key" "clients/${CLIENT_NAME}_preshared.key" "clients/${CLIENT_NAME}_qr.txt"
+echo "Cliente ${CLIENT_NAME} revogado"
+REVOKEEOF
+chmod +x /usr/local/bin/grom-vpn-revoke-client.sh
+log "Script de revogação de clientes instalado"
+
+# 10. Monitoramento automático de VPN
 cat > /etc/cron.d/grom-vpn << 'CRONEOF'
 # Verificar status do WireGuard a cada 5 minutos e reiniciar se necessário
 */5 * * * * root wg show wg0 > /dev/null 2>&1 || (systemctl restart wg-quick@wg0 && echo "[$(date)] WireGuard auto-restarted" >> /var/log/wireguard.log)

@@ -1,20 +1,35 @@
 #!/bin/bash
 # =============================================================================
 # GROM SERVER - Setup MySQL 8.0
-# Executar DENTRO do container CT101 (grom-db)
+# Executar DENTRO do container CT111 (grom-db)
 # TOTALMENTE AUTOMATIZADO
 # =============================================================================
 
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
-# Senhas - ALTERAR ANTES DE EXECUTAR EM PRODUÇÃO!
-MYSQL_ROOT_PASS="${MYSQL_ROOT_PASS:-CHANGE_ME_ROOT_$(openssl rand -hex 12)}"
-GROM_WEB_PASS="${GROM_WEB_PASS:-CHANGE_ME_WEB_$(openssl rand -hex 12)}"
-GROM_DOC_PASS="${GROM_DOC_PASS:-CHANGE_ME_DOC_$(openssl rand -hex 12)}"
-GROM_BACKUP_PASS="${GROM_BACKUP_PASS:-CHANGE_ME_BKP_$(openssl rand -hex 12)}"
+# Senhas obrigatorias - gerar e guardar antes em KeePassXC ou cofre equivalente.
+: "${MYSQL_ROOT_PASS:?Defina MYSQL_ROOT_PASS antes de executar}"
+: "${GROM_SEG_PASS:?Defina GROM_SEG_PASS antes de executar}"
+: "${GROM_WEB_PASS:?Defina GROM_WEB_PASS antes de executar}"
+: "${GROM_DOC_PASS:?Defina GROM_DOC_PASS antes de executar}"
+: "${GROM_BACKUP_PASS:?Defina GROM_BACKUP_PASS antes de executar}"
 
 CREDENTIALS_FILE="/root/.grom_mysql_credentials"
+umask 077
+
+sql_escape() {
+    local value=$1
+    value=${value//\\/\\\\}
+    value=${value//\'/\'\'}
+    printf '%s' "$value"
+}
+
+MYSQL_ROOT_PASS_SQL=$(sql_escape "$MYSQL_ROOT_PASS")
+GROM_SEG_PASS_SQL=$(sql_escape "$GROM_SEG_PASS")
+GROM_WEB_PASS_SQL=$(sql_escape "$GROM_WEB_PASS")
+GROM_DOC_PASS_SQL=$(sql_escape "$GROM_DOC_PASS")
+GROM_BACKUP_PASS_SQL=$(sql_escape "$GROM_BACKUP_PASS")
 
 log() { echo -e "\033[0;32m[✓]\033[0m $1"; }
 info() { echo -e "\033[0;34m[i]\033[0m $1"; }
@@ -36,7 +51,7 @@ log "MySQL instalado"
 info "Aplicando hardening..."
 mysql -u root << SQLEOF
 -- Definir senha root
-ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY '${MYSQL_ROOT_PASS}';
+ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY '${MYSQL_ROOT_PASS_SQL}';
 
 -- Remover usuários anônimos
 DELETE FROM mysql.user WHERE User='';
@@ -49,6 +64,10 @@ DROP DATABASE IF EXISTS test;
 DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 
 -- Criar bancos de dados
+CREATE DATABASE IF NOT EXISTS grom_seg
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
 CREATE DATABASE IF NOT EXISTS grom_web
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
@@ -58,20 +77,33 @@ CREATE DATABASE IF NOT EXISTS grom_documental
     COLLATE utf8mb4_unicode_ci;
 
 -- Usuário Grom_web (acesso apenas do web server)
+CREATE USER IF NOT EXISTS 'grom_seg_user'@'10.0.1.10'
+    IDENTIFIED BY '${GROM_SEG_PASS_SQL}' REQUIRE SSL;
+ALTER USER 'grom_seg_user'@'10.0.1.10'
+    IDENTIFIED BY '${GROM_SEG_PASS_SQL}' REQUIRE SSL;
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP, REFERENCES
+    ON grom_seg.* TO 'grom_seg_user'@'10.0.1.10';
+
 CREATE USER IF NOT EXISTS 'grom_web_user'@'10.0.1.10'
-    IDENTIFIED BY '${GROM_WEB_PASS}';
+    IDENTIFIED BY '${GROM_WEB_PASS_SQL}' REQUIRE SSL;
+ALTER USER 'grom_web_user'@'10.0.1.10'
+    IDENTIFIED BY '${GROM_WEB_PASS_SQL}' REQUIRE SSL;
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP, REFERENCES
     ON grom_web.* TO 'grom_web_user'@'10.0.1.10';
 
 -- Usuário Grom Documental
 CREATE USER IF NOT EXISTS 'grom_doc_user'@'10.0.1.10'
-    IDENTIFIED BY '${GROM_DOC_PASS}';
+    IDENTIFIED BY '${GROM_DOC_PASS_SQL}' REQUIRE SSL;
+ALTER USER 'grom_doc_user'@'10.0.1.10'
+    IDENTIFIED BY '${GROM_DOC_PASS_SQL}' REQUIRE SSL;
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP, REFERENCES
     ON grom_documental.* TO 'grom_doc_user'@'10.0.1.10';
 
 -- Usuário de backup (somente leitura)
 CREATE USER IF NOT EXISTS 'grom_backup'@'10.0.1.12'
-    IDENTIFIED BY '${GROM_BACKUP_PASS}';
+    IDENTIFIED BY '${GROM_BACKUP_PASS_SQL}' REQUIRE SSL;
+ALTER USER 'grom_backup'@'10.0.1.12'
+    IDENTIFIED BY '${GROM_BACKUP_PASS_SQL}' REQUIRE SSL;
 GRANT SELECT, LOCK TABLES, SHOW VIEW, EVENT, TRIGGER, RELOAD, PROCESS
     ON *.* TO 'grom_backup'@'10.0.1.12';
 
@@ -127,7 +159,7 @@ max_allowed_packet = 64M
 local_infile = 0
 symbolic-links = 0
 sql_mode = STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
-require_secure_transport = OFF
+require_secure_transport = ON
 
 # Logs
 slow_query_log = 1
@@ -151,20 +183,32 @@ systemctl restart mysql
 log "MySQL reiniciado com configuração otimizada"
 
 # 4. Salvar credenciais em arquivo seguro
-cat > "$CREDENTIALS_FILE" << CREDEOF
+{
+cat << CREDEOF
 # =============================================================================
 # GROM SERVER - MySQL Credentials
 # GERADO AUTOMATICAMENTE em $(date)
 # MOVER PARA LOCAL SEGURO E REMOVER DESTE SERVIDOR!
 # =============================================================================
-ROOT_PASS=${MYSQL_ROOT_PASS}
-GROM_WEB_USER=grom_web_user@10.0.1.10
-GROM_WEB_PASS=${GROM_WEB_PASS}
-GROM_DOC_USER=grom_doc_user@10.0.1.10
-GROM_DOC_PASS=${GROM_DOC_PASS}
-GROM_BACKUP_USER=grom_backup@10.0.1.12
-GROM_BACKUP_PASS=${GROM_BACKUP_PASS}
 CREDEOF
+printf 'ROOT_PASS=%q\n' "$MYSQL_ROOT_PASS"
+cat << CREDEOF
+GROM_SEG_USER=grom_seg_user@10.0.1.10
+CREDEOF
+printf 'GROM_SEG_PASS=%q\n' "$GROM_SEG_PASS"
+cat << CREDEOF
+GROM_WEB_USER=grom_web_user@10.0.1.10
+CREDEOF
+printf 'GROM_WEB_PASS=%q\n' "$GROM_WEB_PASS"
+cat << CREDEOF
+GROM_DOC_USER=grom_doc_user@10.0.1.10
+CREDEOF
+printf 'GROM_DOC_PASS=%q\n' "$GROM_DOC_PASS"
+cat << CREDEOF
+GROM_BACKUP_USER=grom_backup@10.0.1.12
+CREDEOF
+printf 'GROM_BACKUP_PASS=%q\n' "$GROM_BACKUP_PASS"
+} > "$CREDENTIALS_FILE"
 chmod 600 "$CREDENTIALS_FILE"
 log "Credenciais salvas em ${CREDENTIALS_FILE}"
 
@@ -187,7 +231,7 @@ log "Atualizações automáticas configuradas"
 echo ""
 echo "============================================"
 echo "  ✅ MySQL 8.0 configurado!"
-echo "  Bancos: grom_web, grom_documental"
+echo "  Bancos: grom_seg, grom_web, grom_documental"
 echo ""
 warn "IMPORTANTE: Salvar credenciais de ${CREDENTIALS_FILE}"
 warn "e depois remover o arquivo do servidor!"

@@ -14,8 +14,11 @@ Executado automaticamente via cron, verificar apenas se houve alertas.
 | Tarefa | Horário | Script |
 |---|---|---|
 | Backup databases | 00:00, 06:00, 12:00, 18:00 | `backup-databases.sh` |
-| Backup arquivos web | 02:00 | `backup-files.sh` |
+| Backup fontes montadas opcionais | 02:00 | `backup-files.sh` |
+| Backup VM/LXC Proxmox | 02:30 | `backup-containers.sh` no Proxmox host |
 | Sync HD externo | 04:00 | rsync automático |
+| Sync Google Drive criptografado | 05:30 | `sync-google-drive.sh`, se rclone crypt estiver configurado |
+| Health check operacional | A cada 15 min | `grom-operational-health-check.sh` no Proxmox host |
 | Verificação de saúde | 06:30 | health-check via Netdata |
 | Rotação de logs | Automático | logrotate |
 
@@ -38,6 +41,7 @@ fail2ban-client status  # Resumo de bans
 
 # 4. Verificar backups da semana
 borg list /mnt/backup/databases | tail -7
+ls -lh /mnt/backup-external/proxmox | tail
 
 # 5. Verificar atualizações
 apt list --upgradable   # Em cada container
@@ -51,6 +55,18 @@ apt list --upgradable   # Em cada container
 ## Manutenção Mensal (~30 min)
 
 **Quando**: Primeiro domingo do mês
+
+O servidor gera automaticamente um relatorio operacional mensal em:
+
+```bash
+/var/log/grom-reports/
+```
+
+Execucao manual:
+
+```bash
+/usr/local/sbin/grom-monthly-operational-report.sh
+```
 
 ### Checklist Mensal
 ```bash
@@ -154,10 +170,22 @@ borg prune --keep-daily=7 --keep-weekly=4 /mnt/backup/databases
 
 ## Script de Health Check
 
-Executar `scripts/monitoring/health-check.sh` para verificação rápida:
+Executar no Proxmox host:
+
+```bash
+/usr/local/sbin/grom-operational-health-check.sh
+```
+
+Ou, antes da instalacao em `/usr/local/sbin`:
+
+```bash
+bash /root/grom-scripts/scripts/proxmox/operational-health-check.sh
+```
+
+Ele verifica:
 - Status de todos os containers
 - Uso de CPU/RAM/Disco
 - Status dos serviços principais
 - Último backup realizado
-- Certificados SSL válidos
-- Conexões ativas
+- Backup VM/LXC recente
+- Portas administrativas publicas, quando `--public-target` for informado

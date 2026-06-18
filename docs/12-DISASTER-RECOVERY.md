@@ -44,6 +44,7 @@ ls -la /mnt/backup/databases/
 borg extract /mnt/backup/databases::latest
 
 # 3. Importar dump
+mysql -u root -p grom_seg < dump_grom_seg.sql
 mysql -u root -p grom_web < dump_grom_web.sql
 mysql -u root -p grom_documental < dump_grom_documental.sql
 

@@ -15,7 +15,7 @@
 Camada 1: Rede         → OPNsense Firewall + IDS/IPS (Suricata)
 Camada 2: DNS          → DNS over TLS + DNSSEC + Bloqueio de domínios maliciosos
 Camada 3: Transporte   → SSL/TLS em todos os serviços + WireGuard VPN
-Camada 4: Aplicação    → Fail2Ban + CrowdSec + Rate Limiting + WAF headers
+Camada 4: Aplicação    → Fail2Ban + CrowdSec opcional + Rate Limiting + WAF headers
 Camada 5: Autenticação → SSH por chave + 2FA no Proxmox/OPNsense + senhas fortes
 Camada 6: Dados        → Backups criptografados + MySQL com TLS + permissões restritas
 Camada 7: Monitoramento→ Netdata + Uptime Kuma + Logs centralizados + Alertas
@@ -82,15 +82,15 @@ Principais jails:
 
 ---
 
-## 3. CrowdSec (Proteção Colaborativa)
+## 3. CrowdSec (Proteção Colaborativa Opcional)
 
 ```bash
-curl -s https://install.crowdsec.net | bash
-# Instalar bouncer para Nginx
-apt install crowdsec-firewall-bouncer-iptables -y
+# Configurar o repositório oficial conforme documentação do CrowdSec.
+# Depois executar explicitamente:
+INSTALL_CROWDSEC=1 bash scripts/security/hardening.sh
 ```
 
-CrowdSec é como um Fail2Ban colaborativo — compartilha IPs maliciosos com a comunidade.
+CrowdSec pode ser útil, mas não deve ser instalado via `curl | bash` no baseline. Para este projeto, Fail2Ban + OPNsense/Suricata são obrigatórios; CrowdSec é uma camada adicional controlada.
 
 ---
 
@@ -108,7 +108,7 @@ Unattended-Upgrade::Allowed-Origins {
 };
 Unattended-Upgrade::AutoFixInterruptedDpkg "true";
 Unattended-Upgrade::Remove-Unused-Dependencies "true";
-Unattended-Upgrade::Mail "seu@email.com";
+Unattended-Upgrade::Mail "grom.servidor@gmail.com";
 Unattended-Upgrade::MailReport "on-change";
 ```
 
@@ -162,7 +162,8 @@ add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
 
 ## 7. Checklist de Auditoria Mensal
 
-- [ ] Verificar logs de Fail2Ban/CrowdSec
+- [ ] Verificar logs de Fail2Ban
+- [ ] Verificar logs de CrowdSec, se instalado
 - [ ] Verificar IPs banidos
 - [ ] Testar backups (restauração)
 - [ ] Verificar certificados SSL (validade)

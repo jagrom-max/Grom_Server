@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # GROM SERVER - Backup Automático de Bancos de Dados
-# Executar DENTRO do container CT102 (grom-backup) via CRON
+# Executar DENTRO do container CT112 (grom-backup) via CRON
 # TOTALMENTE AUTOMATIZADO - zero interação humana
 # =============================================================================
 
@@ -11,10 +11,12 @@ set -euo pipefail
 MYSQL_HOST="10.0.1.11"
 MYSQL_USER="grom_backup"
 MYSQL_PASS="${GROM_BACKUP_PASS:-}"
-DATABASES=("grom_web" "grom_documental")
+ALERT_EMAIL="${GROM_ALERT_EMAIL:-grom.servidor@gmail.com}"
+DATABASES=("grom_seg" "grom_web" "grom_documental")
 BACKUP_DIR="/mnt/backup/databases"
 BORG_REPO="/mnt/backup/borg-databases"
 EXTERNAL_DIR="/mnt/external/databases"
+EXTERNAL2_DIR="/mnt/external2/databases"
 RETENTION_DAYS=7
 LOG_FILE="/var/log/grom-backup/databases.log"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
@@ -35,7 +37,7 @@ ERRORS=0
 for DB in "${DATABASES[@]}"; do
     DUMP_FILE="${BACKUP_DIR}/dumps/${DB}_${TIMESTAMP}.sql.gz"
     
-    if mysqldump -h "$MYSQL_HOST" -u "$MYSQL_USER" -p"$MYSQL_PASS" \
+    if mysqldump -h "$MYSQL_HOST" -u "$MYSQL_USER" -p"$MYSQL_PASS" --ssl-mode=REQUIRED \
         --single-transaction --routines --triggers --events \
         "$DB" 2>/dev/null | gzip > "$DUMP_FILE"; then
         SIZE=$(du -sh "$DUMP_FILE" | awk '{print $1}')
@@ -74,6 +76,12 @@ else
     ((ERRORS++))
 fi
 
+# 3.1 Copiar para segundo HD externo opcional
+if [ -d "$EXTERNAL2_DIR" ]; then
+    rsync -aq "${BACKUP_DIR}/dumps/" "$EXTERNAL2_DIR/"
+    log "Sincronizado com segundo HD externo"
+fi
+
 # 4. Limpar dumps antigos (manter apenas RETENTION_DAYS dias)
 find "${BACKUP_DIR}/dumps/" -name "*.sql.gz" -mtime +${RETENTION_DAYS} -delete 2>/dev/null
 log "Dumps antigos limpos (>${RETENTION_DAYS} dias)"
@@ -83,7 +91,7 @@ if [ "$ERRORS" -gt 0 ]; then
     error "Backup concluído com ${ERRORS} erro(s)!"
     # Enviar alerta (se configurado)
     echo "⚠️ GROM BACKUP: ${ERRORS} erro(s) no backup de databases em $(hostname)" | \
-        mail -s "⚠️ Backup Alert" root 2>/dev/null || true
+        mail -s "⚠️ Backup Alert" "$ALERT_EMAIL" 2>/dev/null || true
     exit 1
 else
     log "Backup concluído com sucesso!"

@@ -1,0 +1,63 @@
+# Exemplo inicial Frigate + OpenVINO para Intel iGPU.
+# Nao inserir URLs/senhas reais neste arquivo.
+
+mqtt:
+  host: mosquitto
+  user: "{FRIGATE_MQTT_USER}"
+  password: "{FRIGATE_MQTT_PASSWORD}"
+  topic_prefix: grom/frigate
+
+detectors:
+  ov:
+    type: openvino
+    device: GPU
+
+model:
+  width: 300
+  height: 300
+  input_tensor: nhwc
+  input_pixel_format: bgr
+  path: /openvino-model/ssdlite_mobilenet_v2.xml
+  labelmap_path: /openvino-model/coco_91cl_bkgr.txt
+
+ffmpeg:
+  hwaccel_args: preset-vaapi
+
+record:
+  enabled: false
+  retain:
+    days: 0
+    mode: motion
+  events:
+    retain:
+      default: 7
+      mode: motion
+
+snapshots:
+  enabled: true
+  retain:
+    default: 15
+
+objects:
+  track:
+    - person
+    - car
+    - motorcycle
+    - bicycle
+
+cameras:
+  garagem_entrada:
+    enabled: false
+    ffmpeg:
+      inputs:
+        - path: rtsp://camera.example.local/garagem_entrada_substream
+          roles:
+            - detect
+        - path: rtsp://camera.example.local/garagem_entrada_mainstream
+          roles:
+            - record
+    detect:
+      enabled: true
+      width: 640
+      height: 360
+      fps: 3

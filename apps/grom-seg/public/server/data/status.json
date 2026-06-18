@@ -1,0 +1,34 @@
+{
+  "generated_at": null,
+  "status": "warn",
+  "summary": {
+    "failures": 0,
+    "warnings": 1,
+    "services_ok": 0,
+    "services_total": 6
+  },
+  "resources": {
+    "cpu_percent": 0,
+    "memory_percent": 0,
+    "disk_percent": 0,
+    "backup_disk_percent": 0
+  },
+  "backups": {
+    "db_age_hours": null,
+    "vm_age_hours": null,
+    "restore_drill": "pendente"
+  },
+  "security": {
+    "admin_ports": "nao testado",
+    "vpn": "pendente",
+    "gono": "NO-GO"
+  },
+  "services": [
+    { "name": "OPNsense", "role": "Firewall VM100", "status": "warn" },
+    { "name": "Web/SigePol", "role": "CT110", "status": "warn" },
+    { "name": "Database", "role": "CT111", "status": "warn" },
+    { "name": "Backup", "role": "CT112", "status": "warn" },
+    { "name": "Monitoring", "role": "CT113", "status": "warn" },
+    { "name": "VPN", "role": "CT114", "status": "warn" }
+  ]
+}

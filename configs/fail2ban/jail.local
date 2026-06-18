@@ -19,7 +19,7 @@ backend = systemd
 ignoreip = 127.0.0.1/8 10.0.1.0/24 10.0.10.0/24
 
 # Email de notificação (opcional)
-# destemail = admin@grom.seg.br
+# destemail = grom.servidor@gmail.com
 # sender = fail2ban@grom.seg.br
 # mta = sendmail
 # action = %(action_mwl)s

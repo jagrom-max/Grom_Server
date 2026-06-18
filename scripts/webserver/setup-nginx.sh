@@ -1,14 +1,15 @@
 #!/bin/bash
 # =============================================================================
 # GROM SERVER - Setup Nginx (Web Server)
-# Executar DENTRO do container CT100 (grom-web)
+# Executar DENTRO do container CT110 (grom-web)
 # TOTALMENTE AUTOMATIZADO
 # =============================================================================
 
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
-DOMAIN="grom.seg.br"
+DOMAIN="${GROM_DOMAIN:-grom.seg.br}"
+APP_DOMAIN="${GROM_APP_DOMAIN:-$DOMAIN}"
 WEB_DOMAIN="web.${DOMAIN}"
 DOCS_DOMAIN="docs.${DOMAIN}"
 
@@ -35,6 +36,7 @@ log "Nginx instalado"
 # 3. Criar estrutura de diretórios
 info "Criando estrutura de diretórios..."
 mkdir -p /var/www/${WEB_DOMAIN}/public
+mkdir -p /var/www/${APP_DOMAIN}/public
 mkdir -p /var/www/${DOCS_DOMAIN}/app
 mkdir -p /var/log/nginx
 mkdir -p /etc/nginx/snippets
@@ -104,9 +106,83 @@ add_header X-XSS-Protection "1; mode=block" always;
 add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
 add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; object-src 'none'; img-src 'self' data:; font-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; form-action 'self';" always;
 SECEOF
 
-# 6. VHost - Grom_web (PHP)
+# 6. VHost - Grom.Seg unificado
+cat > /etc/nginx/sites-available/${APP_DOMAIN}.conf << VHOSTEOF
+server {
+    listen 80;
+    server_name ${APP_DOMAIN};
+
+    root /var/www/${APP_DOMAIN}/public;
+    index index.php index.html;
+
+    limit_req zone=general burst=20 nodelay;
+    limit_conn connlimit 10;
+
+    location / {
+        try_files \$uri \$uri/ /index.php?\$query_string;
+    }
+
+    location ^~ /server/ {
+        allow 10.0.1.0/24;
+        allow 10.0.10.0/24;
+        deny all;
+        try_files \$uri \$uri/ =404;
+    }
+
+    location ~ ^/(login|admin|api/auth) {
+        limit_req zone=login burst=5 nodelay;
+        try_files \$uri \$uri/ /index.php?\$query_string;
+    }
+
+    location /documental/ {
+        proxy_pass http://unix:/run/grom-documental.sock:/;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_connect_timeout 60s;
+        proxy_read_timeout 120s;
+    }
+
+    location /static/documental/ {
+        alias /var/www/${DOCS_DOMAIN}/app/static/;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    location ~ \.php\$ {
+        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_intercept_errors on;
+        fastcgi_buffer_size 16k;
+        fastcgi_buffers 4 16k;
+    }
+
+    location ~ /\.(ht|env|git) {
+        deny all;
+        return 404;
+    }
+
+    location ~ /\.(sql|bak|old|orig|swp|log) {
+        deny all;
+        return 404;
+    }
+
+    location ~* \.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot|webp)\$ {
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    access_log /var/log/nginx/${APP_DOMAIN}.access.log main;
+    error_log /var/log/nginx/${APP_DOMAIN}.error.log;
+}
+VHOSTEOF
+
+# 7. VHost legado - Grom_web (PHP)
 cat > /etc/nginx/sites-available/${WEB_DOMAIN}.conf << VHOSTEOF
 server {
     listen 80;
@@ -187,17 +263,30 @@ VHOSTEOF
 
 # 8. Habilitar sites
 rm -f /etc/nginx/sites-enabled/default
+ln -sf /etc/nginx/sites-available/${APP_DOMAIN}.conf /etc/nginx/sites-enabled/
 ln -sf /etc/nginx/sites-available/${WEB_DOMAIN}.conf /etc/nginx/sites-enabled/
 ln -sf /etc/nginx/sites-available/${DOCS_DOMAIN}.conf /etc/nginx/sites-enabled/
 
-# 9. Criar página inicial temporária
+# 9. Publicar dashboard/base Grom.Seg ou criar pagina temporaria
+if [ -f /tmp/grom-seg-public.tar.gz ]; then
+    tar -xzf /tmp/grom-seg-public.tar.gz -C /var/www/${APP_DOMAIN}/public
+    log "Dashboard Grom.Seg publicado em /var/www/${APP_DOMAIN}/public"
+fi
+
 cat > /var/www/${WEB_DOMAIN}/public/index.php << 'PHPEOF'
 <?php
-echo "<h1>🖥️ Grom Server</h1>";
-echo "<p>Servidor operacional - " . date('Y-m-d H:i:s') . "</p>";
-echo "<p>PHP " . phpversion() . "</p>";
-phpinfo();
+http_response_code(200);
+header('Content-Type: text/plain; charset=utf-8');
+echo "OK\n";
 PHPEOF
+if [ ! -f /var/www/${APP_DOMAIN}/public/index.php ] && [ ! -f /var/www/${APP_DOMAIN}/public/index.html ]; then
+    cat > /var/www/${APP_DOMAIN}/public/index.php << 'PHPEOF'
+<?php
+http_response_code(200);
+header('Content-Type: text/plain; charset=utf-8');
+echo "Grom.Seg OK\n";
+PHPEOF
+fi
 
 # 10. Permissões
 chown -R www-data:www-data /var/www/
@@ -233,5 +322,5 @@ log "Atualizações automáticas configuradas"
 echo ""
 echo "============================================"
 echo "  ✅ Nginx configurado!"
-echo "  Domínios: ${WEB_DOMAIN} | ${DOCS_DOMAIN}"
+echo "  Dominios: ${APP_DOMAIN} | legados: ${WEB_DOMAIN} | ${DOCS_DOMAIN}"
 echo "============================================"

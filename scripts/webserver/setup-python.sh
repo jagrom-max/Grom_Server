@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # GROM SERVER - Setup Python Environment
-# Executar DENTRO do container CT100 (grom-web)
+# Executar DENTRO do container CT110 (grom-web)
 # TOTALMENTE AUTOMATIZADO
 # =============================================================================
 
@@ -84,8 +84,9 @@ app = FastAPI(
     title="Grom Documental",
     description="Sistema de Gestão Documental - grom.seg.br",
     version="1.0.0",
-    docs_url="/api/docs",
-    redoc_url="/api/redoc"
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None
 )
 
 # Static files e templates

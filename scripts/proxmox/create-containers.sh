@@ -23,10 +23,11 @@ STORAGE="local-lvm"
 TEMPLATE_URL="http://download.proxmox.com/images/system/ubuntu-24.04-standard_24.04-2_amd64.tar.zst"
 TEMPLATE_FILE="ubuntu-24.04-standard_24.04-2_amd64.tar.zst"
 TEMPLATE_PATH="/var/lib/vz/template/cache/${TEMPLATE_FILE}"
+LOCAL_TEMPLATE_CANDIDATE="/root/grom-scripts/downloads/templates/${TEMPLATE_FILE}"
 GATEWAY="10.0.1.1"
 DNS="10.0.1.1"
 SEARCH_DOMAIN="grom.seg.br"
-SSH_KEY_FILE="/root/.ssh/id_rsa.pub"
+SSH_KEY_FILE="/root/.ssh/id_ed25519.pub"
 
 echo "============================================"
 echo "  GROM SERVER - Criação de Containers"
@@ -37,9 +38,15 @@ echo ""
 # 1. Download do template Ubuntu 24.04
 # -----------------------------------------------------------------------------
 if [ ! -f "$TEMPLATE_PATH" ]; then
-    info "Baixando template Ubuntu 24.04 LTS..."
-    wget -q "$TEMPLATE_URL" -O "$TEMPLATE_PATH"
-    log "Template baixado"
+    if [ -f "$LOCAL_TEMPLATE_CANDIDATE" ]; then
+        info "Copiando template Ubuntu 24.04 LTS do kit offline..."
+        cp "$LOCAL_TEMPLATE_CANDIDATE" "$TEMPLATE_PATH"
+        log "Template copiado"
+    else
+        info "Baixando template Ubuntu 24.04 LTS..."
+        wget -q "$TEMPLATE_URL" -O "$TEMPLATE_PATH"
+        log "Template baixado"
+    fi
 else
     log "Template Ubuntu 24.04 já existe"
 fi
@@ -49,7 +56,7 @@ fi
 # -----------------------------------------------------------------------------
 if [ ! -f "$SSH_KEY_FILE" ]; then
     info "Gerando chave SSH..."
-    ssh-keygen -t ed25519 -f /root/.ssh/id_rsa -N "" -C "grom-admin@grom-pve"
+    ssh-keygen -t ed25519 -f /root/.ssh/id_ed25519 -N "" -C "grom-admin@grom-pve"
     log "Chave SSH gerada"
 fi
 
@@ -65,6 +72,12 @@ create_container() {
     local DISK=$5
     local IP=$6
     local DESC=$7
+    local FEATURES="${8:-}"
+    local PCT_FEATURES=()
+
+    if [ -n "$FEATURES" ]; then
+        PCT_FEATURES=(--features "$FEATURES")
+    fi
 
     if pct status "$CTID" >/dev/null 2>&1; then
         warn "Container $CTID ($NAME) já existe, pulando..."
@@ -87,55 +100,63 @@ create_container() {
         --onboot 1 \
         --start 0 \
         --unprivileged 1 \
-        --features "nesting=1" \
-        --protection 1
+        --protection 1 \
+        "${PCT_FEATURES[@]}"
 
     log "Container $CTID ($NAME) criado"
 }
 
-# CT100 - Web Server (Nginx + PHP + Python)
-create_container 100 "grom-web" 4096 4 100 "10.0.1.10" \
-    "Servidor Web - Nginx + PHP 8.3 + Python 3.12 | Grom_web + Grom Documental"
+# CT110 - Web Server (Nginx + PHP + Python)
+create_container 110 "grom-web" 3072 3 100 "10.0.1.10" \
+    "Servidor Web - Nginx + PHP 8.3 + Python 3.12 | Grom.Seg"
 
-# CT101 - MySQL Database
-create_container 101 "grom-db" 3072 2 200 "10.0.1.11" \
-    "Banco de Dados MySQL 8.0 | grom_web + grom_documental"
+# CT111 - MySQL Database
+create_container 111 "grom-db" 2560 2 200 "10.0.1.11" \
+    "Banco de Dados MySQL 8.0 | grom_seg + legados"
 
-# CT102 - Backup Server
-create_container 102 "grom-backup" 1024 1 50 "10.0.1.12" \
+# CT112 - Backup Server
+create_container 112 "grom-backup" 768 1 50 "10.0.1.12" \
     "Servidor de Backup - BorgBackup + rsync | HD Externo 1TB"
 
-# CT103 - Monitoring
-create_container 103 "grom-monitor" 1024 1 20 "10.0.1.13" \
-    "Monitoramento - Netdata + Uptime Kuma"
+# CT113 - Monitoring
+create_container 113 "grom-monitor" 768 1 20 "10.0.1.13" \
+    "Monitoramento - Netdata + Uptime Kuma" "nesting=1"
 
-# CT104 - WireGuard VPN
-create_container 104 "grom-vpn" 512 1 5 "10.0.1.14" \
+# CT114 - WireGuard VPN
+create_container 114 "grom-vpn" 512 1 5 "10.0.1.14" \
     "VPN WireGuard | Acesso remoto seguro"
 
 # -----------------------------------------------------------------------------
 # 4. Configurações especiais
 # -----------------------------------------------------------------------------
 
-# CT102 (Backup) - Bind mount para HD externo
-info "Configurando bind mount do HD externo para CT102..."
+# CT112 (Backup) - Bind mount para HD externo
+info "Configurando bind mount do HD externo para CT112..."
 if [ -d "/mnt/backup-external" ]; then
-    grep -q "mp0" /etc/pve/lxc/102.conf 2>/dev/null || \
-        echo "mp0: /mnt/backup-external,mp=/mnt/external" >> /etc/pve/lxc/102.conf
-    log "Bind mount configurado para CT102"
+    grep -q "mp0" /etc/pve/lxc/112.conf 2>/dev/null || \
+        echo "mp0: /mnt/backup-external,mp=/mnt/external" >> /etc/pve/lxc/112.conf
+    log "Bind mount configurado para CT112"
 else
     warn "Diretório /mnt/backup-external não encontrado. Monte o HD externo antes."
 fi
 
-# CT104 (VPN) - Habilitar TUN/TAP para WireGuard
+if [ -d "/mnt/backup-external-2" ]; then
+    grep -q "mp1" /etc/pve/lxc/112.conf 2>/dev/null || \
+        echo "mp1: /mnt/backup-external-2,mp=/mnt/external2" >> /etc/pve/lxc/112.conf
+    log "Segundo bind mount de backup configurado para CT112"
+else
+    warn "Segundo HD externo opcional nao encontrado em /mnt/backup-external-2."
+fi
+
+# CT114 (VPN) - Habilitar TUN/TAP para WireGuard
 info "Habilitando TUN/TAP para WireGuard..."
-grep -q "lxc.cgroup2.devices.allow" /etc/pve/lxc/104.conf 2>/dev/null || {
-    cat >> /etc/pve/lxc/104.conf << 'EOF'
+grep -q "lxc.cgroup2.devices.allow" /etc/pve/lxc/114.conf 2>/dev/null || {
+    cat >> /etc/pve/lxc/114.conf << 'EOF'
 lxc.cgroup2.devices.allow: c 10:200 rwm
 lxc.mount.entry: /dev/net/tun dev/net/tun none bind,create=file
 EOF
 }
-log "TUN/TAP habilitado para CT104"
+log "TUN/TAP habilitado para CT114"
 
 # -----------------------------------------------------------------------------
 # 5. Configurar ordem de boot
@@ -143,18 +164,18 @@ log "TUN/TAP habilitado para CT104"
 info "Configurando ordem de boot..."
 # OPNsense primeiro (VM 100), depois containers na ordem
 qm set 100 --startup order=1,up=30 2>/dev/null || true
-pct set 100 --startup order=2,up=15 2>/dev/null || true  # Web
-pct set 101 --startup order=2,up=15 2>/dev/null || true  # DB
-pct set 102 --startup order=3,up=10 2>/dev/null || true  # Backup
-pct set 103 --startup order=3,up=10 2>/dev/null || true  # Monitoring
-pct set 104 --startup order=2,up=15 2>/dev/null || true  # VPN
+pct set 110 --startup order=2,up=15 2>/dev/null || true  # Web
+pct set 111 --startup order=2,up=15 2>/dev/null || true  # DB
+pct set 112 --startup order=3,up=10 2>/dev/null || true  # Backup
+pct set 113 --startup order=3,up=10 2>/dev/null || true  # Monitoring
+pct set 114 --startup order=2,up=15 2>/dev/null || true  # VPN
 log "Ordem de boot configurada"
 
 # -----------------------------------------------------------------------------
 # 6. Iniciar containers
 # -----------------------------------------------------------------------------
 info "Iniciando containers..."
-for ctid in 100 101 102 103 104; do
+for ctid in 110 111 112 113 114; do
     pct start "$ctid" 2>/dev/null || warn "Não foi possível iniciar CT${ctid}"
     sleep 5
 done
@@ -167,12 +188,13 @@ echo "  ✅ Containers criados com sucesso!"
 echo "============================================"
 echo ""
 echo "  Containers:"
-echo "  CT100 - grom-web    (10.0.1.10) - Web Server"
-echo "  CT101 - grom-db     (10.0.1.11) - MySQL"
-echo "  CT102 - grom-backup (10.0.1.12) - Backup"
-echo "  CT103 - grom-monitor(10.0.1.13) - Monitoring"
-echo "  CT104 - grom-vpn    (10.0.1.14) - WireGuard"
+echo "  VM100 - opnsense    (10.0.1.1)  - Firewall"
+echo "  CT110 - grom-web    (10.0.1.10) - Grom.Seg Web Server"
+echo "  CT111 - grom-db     (10.0.1.11) - MySQL"
+echo "  CT112 - grom-backup (10.0.1.12) - Backup"
+echo "  CT113 - grom-monitor(10.0.1.13) - Monitoring"
+echo "  CT114 - grom-vpn    (10.0.1.14) - WireGuard"
 echo ""
 echo "  Próximo passo: Executar scripts de setup em cada container"
-echo "  Ex: pct exec 100 -- bash /tmp/setup-nginx.sh"
+echo "  Ex: pct exec 110 -- bash /tmp/setup-nginx.sh"
 echo ""

@@ -2,7 +2,7 @@
 
 ## Download e Instalação
 
-1. **Download**: https://www.proxmox.com/downloads → Proxmox VE 8.x ISO
+1. **Download**: https://www.proxmox.com/en/downloads → Proxmox VE ISO atual
 2. **Pendrive bootável**: Usar Balena Etcher ou Rufus
 3. **Boot**: USB no Mini PC, selecionar Install Proxmox VE
 
@@ -13,7 +13,7 @@
 - **Gateway**: `192.168.0.1`
 - **DNS**: `1.1.1.1, 8.8.8.8`
 - **Senha root**: Definir senha forte
-- **Email**: Seu email para alertas
+- **Email**: `grom.servidor@gmail.com` para alertas operacionais
 
 ---
 
@@ -21,13 +21,13 @@
 
 Executar o script `scripts/proxmox/post-install.sh` que realiza:
 
-1. Remover popup de assinatura enterprise
-2. Configurar repositório no-subscription
-3. Atualizar sistema
-4. Instalar pacotes úteis
-5. Configurar bridges de rede (vmbr0/vmbr1)
-6. Habilitar IOMMU para passthrough
-7. Configurar NTP
+1. Configurar repositório no-subscription
+2. Atualizar sistema
+3. Instalar pacotes úteis
+4. Configurar bridges de rede (vmbr0/vmbr1)
+5. Habilitar IOMMU para passthrough
+6. Configurar NTP
+7. Configurar SMART/sensores
 8. Habilitar 2FA
 
 ---
@@ -50,9 +50,9 @@ lsusb | grep -i net
 ### VM: OPNsense Firewall (VM ID: 100)
 ```bash
 # Download da ISO
-wget https://mirror.dns-root.de/opnsense/releases/24.7/OPNsense-24.7-dvd-amd64.iso.bz2
-bunzip2 OPNsense-24.7-dvd-amd64.iso.bz2
-mv OPNsense-24.7-dvd-amd64.iso /var/lib/vz/template/iso/
+# Usar https://opnsense.org/download/ com arquitetura amd64 e tipo dvd.
+# Baixar tambem checksum/assinatura e validar antes de mover para o Proxmox.
+mv OPNsense-*-dvd-amd64.iso /var/lib/vz/template/iso/
 
 # Criar VM via CLI
 qm create 100 --name opnsense \

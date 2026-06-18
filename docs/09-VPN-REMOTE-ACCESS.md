@@ -1,10 +1,10 @@
 # 🔐 VPN e Acesso Remoto
 
-## Container LXC: CT104 - WireGuard VPN
+## Container LXC: CT114 - WireGuard VPN
 
 | Parâmetro | Valor |
 |---|---|
-| **ID** | 104 |
+| **ID** | 114 |
 | **Hostname** | grom-vpn |
 | **SO** | Ubuntu 24.04 LTS |
 | **RAM** | 512MB |
@@ -118,3 +118,23 @@ Com VPN conectada, acessar todos os serviços internos:
 - Monitoring: `http://10.0.1.13:19999`
 
 > ⚠️ O Proxmox e OPNsense NUNCA devem ser acessíveis sem VPN.
+> O monitoramento também deve permanecer apenas em LAN/VPN.
+
+---
+
+## Revogação de Acesso
+
+Cada pessoa/dispositivo deve ter peer próprio. Em caso de perda, troca de aparelho, desligamento de usuário ou suspeita de comprometimento:
+
+```bash
+grom-vpn-revoke-client.sh <nome-do-cliente>
+```
+
+Depois revisar:
+
+```bash
+wg show
+grep -n "Cliente:" /etc/wireguard/wg0.conf
+```
+
+Nunca compartilhar o mesmo arquivo `.conf` entre usuários.

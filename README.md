@@ -8,6 +8,24 @@
 
 O **Grom Server** é um projeto de servidor caseiro profissional, projetado para hospedagem web, gestão documental e acesso remoto seguro, construído inteiramente com tecnologias **open source**.
 
+> **Leitura obrigatória antes da implantação**:
+> `docs/00-ARQUITETURA-SEGURA-LGPD.md`, `docs/13-CHECKLIST-PRE-IMPLANTACAO.md`
+> `docs/14-IMPLANTACAO-HARDWARE-ATUAL.md`, `docs/15-PRINCIPIOS-BAIXO-CUSTO.md`
+> `docs/16-DOWNLOADS-PREPARACAO-OFFLINE.md`, `docs/17-CONTA-GOOGLE-BACKUP.md`,
+> `docs/18-DIAGRAMAS-E-MATRIZES.md`, `docs/19-RUNBOOK-PRIMEIRA-IMPLANTACAO.md`
+> `docs/20-MATRIZ-RISCOS-CONTROLES.md`, `docs/21-AUTOMACAO-E-BAIXA-MANUTENCAO.md`,
+> `docs/22-VALIDACAO-POS-DEPLOY.md`, `docs/23-RELATORIO-OPERACIONAL-MENSAL.md`
+> `docs/24-TRANSICAO-GROM-SEG.md`, `docs/25-DNS-REGISTRO-BR.md`
+> `docs/26-HOME-ASSISTANT-GROM-SECURITY.md`, `docs/27-GROM-SECURITY-IMPLANTACAO.md`
+> `docs/28-CAMERAS-DVR-VIDEO.md`, `docs/29-GROM-SECURITY-REGRAS.md`
+> `docs/30-COMUNICACAO-OFICIAL.md` e `docs/31-GO-NOGO-PRODUCAO.md`.
+
+### Subprojeto Grom_Security
+
+O `Grom_Security` deve ser mantido como sistema independente e repositorio irmao do `Grom_Server`, preferencialmente em `E:\Grom_Security` no ambiente Windows de desenvolvimento.
+
+O `Grom_Server` continua responsavel pela infraestrutura, runbooks, Proxmox, rede, backups e modelos de implantacao em `configs/grom-security/`, `configs/docker/` e `docs/`. Codigo, API, OCR, MQTT, alertas e motor de regras do Security devem evoluir fora da arvore do Server, evitando mistura de dependencias, commits e deploys.
+
 ### Hardware Base
 | Componente | Especificação |
 |---|---|
@@ -18,7 +36,7 @@ O **Grom Server** é um projeto de servidor caseiro profissional, projetado para
 | **Rede Integrada** | 1x Ethernet Gigabit |
 | **Rede USB** | Adaptador Ugreen USB-A 3.0 para LAN RJ45 2.5G |
 | **Switch** | TP-Link TL-SG108 (8 portas Gigabit) |
-| **Backup Externo** | HD Externo 1TB |
+| **Backup Externo** | HD Externo 1TB; segundo HD 1TB opcional para copia B/offline |
 
 ### Rede Atual
 | Componente | Especificação |
@@ -26,6 +44,11 @@ O **Grom Server** é um projeto de servidor caseiro profissional, projetado para
 | **Internet** | Cabo 650 Mbps |
 | **Roteador** | Mercusys AX3000 Wi-Fi 6 |
 | **Domínio** | grom.seg.br |
+| **Comunicacao externa oficial** | grom.servidor@gmail.com |
+
+> A conta `grom.servidor@gmail.com` e a identidade externa oficial do Grom_Server,
+> Grom_Security e Grom.Seg para alertas, contatos tecnicos e recuperacao de servicos.
+> Nao enviar senhas, dumps ou documentos sensiveis em claro.
 
 ---
 
@@ -44,7 +67,7 @@ O **Grom Server** é um projeto de servidor caseiro profissional, projetado para
 ┌─────────────────────▼───────────────────────────────────────────┐
 │          BEELINK MINI PC (i5-1035G7 / 16GB / 1TB)               │
 │  ┌────────────────────────────────────────────────────────────┐ │
-│  │              PROXMOX VE 8.x (Hypervisor)                   │ │
+│  │              PROXMOX VE 9.x (Hypervisor)                   │ │
 │  │  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐       │ │
 │  │  │  VM: OPNsense│ │ LXC: Web     │ │ LXC: DB      │       │ │
 │  │  │  (Firewall)  │ │ Server       │ │ Server       │       │ │
@@ -64,7 +87,7 @@ O **Grom Server** é um projeto de servidor caseiro profissional, projetado para
 │                          │                                      │
 │              ┌───────────▼────────────┐                         │
 │              │  HD Externo 1TB (USB)  │                         │
-│              │  Backup Offsite Local  │                         │
+│              │  Backup local/rotação  │                         │
 │              └────────────────────────┘                         │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -88,12 +111,42 @@ Grom_Server/
 │   ├── 09-VPN-REMOTE-ACCESS.md        # VPN e acesso remoto
 │   ├── 10-SECURITY-HARDENING.md       # Hardening de segurança
 │   ├── 11-MANUTENCAO.md               # Procedimentos de manutenção
-│   └── 12-DISASTER-RECOVERY.md        # Plano de recuperação de desastres
+│   ├── 12-DISASTER-RECOVERY.md        # Plano de recuperação de desastres
+│   ├── 13-CHECKLIST-PRE-IMPLANTACAO.md
+│   ├── 14-IMPLANTACAO-HARDWARE-ATUAL.md
+│   ├── 15-PRINCIPIOS-BAIXO-CUSTO.md
+│   ├── 16-DOWNLOADS-PREPARACAO-OFFLINE.md
+│   ├── 17-CONTA-GOOGLE-BACKUP.md
+│   ├── 18-DIAGRAMAS-E-MATRIZES.md
+│   ├── 19-RUNBOOK-PRIMEIRA-IMPLANTACAO.md
+│   ├── 20-MATRIZ-RISCOS-CONTROLES.md
+│   ├── 21-AUTOMACAO-E-BAIXA-MANUTENCAO.md
+│   ├── 22-VALIDACAO-POS-DEPLOY.md
+│   ├── 23-RELATORIO-OPERACIONAL-MENSAL.md
+│   ├── 24-TRANSICAO-GROM-SEG.md
+│   ├── 25-DNS-REGISTRO-BR.md
+│   ├── 26-HOME-ASSISTANT-GROM-SECURITY.md
+│   ├── 27-GROM-SECURITY-IMPLANTACAO.md
+│   ├── 28-CAMERAS-DVR-VIDEO.md
+│   ├── 29-GROM-SECURITY-REGRAS.md
+│   └── 30-COMUNICACAO-OFICIAL.md
 ├── scripts/                           # Scripts de automação
 │   ├── deploy-all.sh                  # 🚀 ORQUESTRADOR - Implanta TUDO automaticamente
 │   ├── proxmox/                       # Scripts para Proxmox
 │   │   ├── post-install.sh            # Pós-instalação Proxmox
-│   │   └── create-containers.sh       # Criação de containers LXC
+│   │   ├── create-containers.sh       # Criação de containers LXC
+│   │   ├── verify-host-readiness.sh   # Validação pré-deploy do host
+│   │   ├── validate-deploy-config.sh  # Validação de variáveis e pacote
+│   │   ├── post-deploy-validation.sh  # Validação pós-deploy
+│   │   ├── monthly-operational-report.sh # Relatório operacional mensal
+│   │   ├── create-ha-security-vms.sh   # VMs Home Assistant e Grom_Security
+│   │   ├── deploy-grom-security.sh      # Deploy automatizado do Grom_Security
+│   │   └── backup-containers.sh       # Backup VM/LXC no Proxmox
+│   ├── downloads/                     # Preparação de downloads offline
+│   │   ├── prepare-offline-kit.ps1
+│   │   ├── prepare-offline-kit.sh
+│   │   ├── prepare-grom-security-offline.ps1
+│   │   └── prepare-grom-security-offline.sh
 │   ├── webserver/                     # Scripts do servidor web
 │   │   ├── setup-nginx.sh             # Instalação e config Nginx
 │   │   ├── setup-php.sh               # Instalação PHP 8.3
@@ -108,18 +161,22 @@ Grom_Server/
 │   ├── backup/                        # Scripts de backup
 │   │   ├── setup-backup.sh            # Configuração backup
 │   │   ├── backup-databases.sh        # Backup de bancos
-│   │   └── backup-files.sh            # Backup de arquivos
+│   │   ├── backup-files.sh            # Backup de fontes montadas
+│   │   └── sync-google-drive.sh       # Sync externo criptografado opcional
 │   ├── monitoring/                    # Scripts de monitoramento
 │   │   └── setup-monitoring.sh        # Instalação monitoramento
 │   ├── vpn/                           # Scripts VPN
 │   │   └── setup-wireguard.sh         # Configuração WireGuard
 │   └── security/                      # Scripts de segurança
 │       ├── hardening.sh               # Hardening geral
+│       ├── setup-email-relay.sh       # Relay SMTP seguro
 │       └── fail2ban-config.sh         # Configuração Fail2Ban
 ├── configs/                           # Arquivos de configuração
+│   ├── grom.env.example               # Variáveis operacionais não secretas
 │   ├── nginx/                         # Configs Nginx
 │   │   ├── nginx.conf                 # Config principal
-│   │   ├── grom-web.conf              # VHost Grom_web
+│   │   ├── grom-seg.conf              # VHost Grom.Seg
+│   │   ├── grom-web.conf              # VHost legado Grom_web
 │   │   ├── grom-documental.conf       # VHost Grom Documental
 │   │   └── security-headers.conf      # Headers de segurança
 │   ├── php/                           # Configs PHP
@@ -129,10 +186,12 @@ Grom_Server/
 │   ├── fail2ban/                      # Configs Fail2Ban
 │   │   ├── jail.local                 # Jails configuradas
 │   │   └── filter.d/                  # Filtros customizados
+│   ├── grom-security/                 # Inventario e modelos Grom_Security/OpenVINO
 │   └── wireguard/                     # Configs WireGuard
 │       └── wg0.conf.template          # Template WireGuard
 ├── apps/                              # Aplicações
-│   ├── grom-web/                      # Grom_web (PHP)
+│   ├── grom-seg/                      # Grom.Seg unificado
+│   ├── grom-web/                      # Grom_web legado
 │   │   └── .gitkeep
 │   └── grom-documental/               # Grom Documental (Python)
 │       └── .gitkeep
@@ -145,20 +204,21 @@ Grom_Server/
 
 | Camada | Tecnologia | Versão | Função |
 |---|---|---|---|
-| **Hypervisor** | Proxmox VE | 8.x | Virtualização e containers |
-| **Firewall** | OPNsense | 24.x | Firewall, IDS/IPS, VLANs |
+| **Hypervisor** | Proxmox VE | 9.x | Virtualização e containers |
+| **Firewall** | OPNsense | Estável vigente | Firewall, IDS/IPS, separação WAN/LAN |
 | **SO Servidor** | Ubuntu Server | 24.04 LTS | Sistema operacional base |
 | **Web Server** | Nginx | Latest | Servidor web / Reverse Proxy |
-| **PHP** | PHP-FPM | 8.3 | Grom_web |
-| **Python** | Python | 3.12+ | Grom Documental + APIs |
+| **PHP** | PHP-FPM | 8.3 | Grom.Seg |
+| **Python** | Python | 3.12+ | Modulos internos/OCR/APIs |
 | **Banco de Dados** | MySQL | 8.0 | Banco de dados relacional |
 | **VPN** | WireGuard | Latest | Acesso remoto seguro |
-| **Backup** | BorgBackup + rsync | Latest | Backup incremental |
+| **Backup** | BorgBackup + vzdump + rsync | Latest | Backup criptografado e snapshots |
 | **IDS/IPS** | Suricata (via OPNsense) | Latest | Detecção de intrusão |
 | **Monitoramento** | Netdata + Uptime Kuma | Latest | Métricas e uptime |
 | **Certificados** | Let's Encrypt | Latest | SSL/TLS gratuito |
-| **Segurança** | Fail2Ban + CrowdSec | Latest | Proteção contra ataques |
-| **DNS** | Cloudflare (gratuito) | - | DNS + proxy + proteção DDoS |
+| **Segurança** | Fail2Ban + CrowdSec opcional | Latest | Proteção contra ataques |
+| **DNS** | Registro.br | - | DNS autoritativo do dominio |
+| **DNS opcional futuro** | Cloudflare | - | DNS/WAF, se aprovado pela politica de dados |
 
 ---
 
@@ -168,13 +228,15 @@ Grom_Server/
 |---|---|---|---|---|
 | **Proxmox Host** | 2GB | - | 30GB | Sistema host |
 | **OPNsense (VM)** | 2GB | 2 | 20GB | Firewall + IDS/IPS |
-| **Web Server (LXC)** | 4GB | 4 | 100GB | Nginx + PHP + Python |
-| **MySQL (LXC)** | 3GB | 2 | 200GB | Banco de dados |
-| **Backup (LXC)** | 1GB | 1 | 50GB | BorgBackup + PBS |
-| **Monitoring (LXC)** | 1GB | 1 | 20GB | Netdata + Uptime Kuma |
+| **Web Server (LXC)** | 3GB | 3 | 100GB | Grom.Seg |
+| **MySQL (LXC)** | 2.5GB | 2 | 200GB | Banco de dados |
+| **Backup (LXC)** | 768MB | 1 | 50GB | BorgBackup + PBS |
+| **Monitoring (LXC)** | 768MB | 1 | 20GB | Netdata + Uptime Kuma |
 | **WireGuard (LXC)** | 512MB | 1 | 5GB | VPN |
-| **Reserva** | 2.5GB | - | ~575GB | Margem de segurança |
-| **TOTAL** | **16GB** | **11** | **~425GB** | |
+| **Home Assistant OS (VM)** | 2GB | 2 | 32GB | Automacao, Matter, Alarm Panel |
+| **Grom_Security (VM)** | 4GB | 2-4 | 160GB | Video, MQTT, OCR, eventos |
+| **Reserva** | ~1GB | - | ~403GB | Margem minima |
+| **TOTAL** | **~16GB** | **15-17** | **~597GB** | Overcommit controlado |
 
 > ⚠️ **Nota**: O i5-1035G7 possui 4 cores / 8 threads. A soma de vCPUs pode exceder os cores físicos pois nem todos os containers operam em carga máxima simultaneamente (overcommit controlado).
 
@@ -191,7 +253,7 @@ Grom_Server/
 4. **Fase 4** - Criação dos containers LXC
 5. **Fase 5** - Configuração do servidor web
 6. **Fase 6** - Configuração do MySQL
-7. **Fase 7** - Deploy das aplicações (Grom_web + Grom Documental)
+7. **Fase 7** - Deploy da aplicação unificada Grom.Seg e módulos legados em transição
 8. **Fase 8** - Configuração de backup
 9. **Fase 9** - Monitoramento e alertas
 10. **Fase 10** - VPN e acesso remoto
@@ -201,13 +263,17 @@ Grom_Server/
 | Automação | Frequência | Descrição |
 |---|---|---|
 | Backup databases | A cada 6h | mysqldump + BorgBackup incremental |
-| Backup arquivos | Diário 02:00 | rsync + BorgBackup |
+| Backup fontes montadas | Diário 02:00 | BorgBackup, se houver fontes montadas |
+| Backup VM/LXC | Diário 02:30 | vzdump no Proxmox host |
 | Sync HD externo | Diário 04:00 | rsync espelho |
+| Sync segundo HD opcional | Diário 04:30 | rsync se `/mnt/external2` existir |
+| Sync externo criptografado | Diário 05:30 | rclone crypt para Google Drive, se configurado |
 | Health check | A cada 6h | CPU/RAM/Disco/Serviços |
-| Watchdog | A cada 3 min | Auto-restart de serviços caídos |
+| Watchdog | A cada 3 min | Alerta serviços remotos e reinicia serviços locais |
 | Updates segurança | Diário | unattended-upgrades |
 | SSL renovação | Automático | certbot timer |
 | VPN recovery | A cada 5 min | Auto-restart WireGuard |
+| Relatório operacional | Mensal | Saúde do host, VM/CT, backups, logs e checklist |
 
 ---
 
@@ -215,10 +281,13 @@ Grom_Server/
 
 | Subdomínio | Serviço | IP Interno |
 |---|---|---|
-| `web.grom.seg.br` | Grom_web (PHP) | 10.0.1.10 |
-| `docs.grom.seg.br` | Grom Documental (Python) | 10.0.1.10 |
+| `grom.seg.br` | Grom.Seg | 10.0.1.10 |
+| `web.grom.seg.br` | Legado/transição Grom_web | 10.0.1.10 |
+| `docs.grom.seg.br` | Legado/transição Grom Documental | 10.0.1.10 |
 | `vpn.grom.seg.br` | WireGuard VPN | 10.0.1.14 |
-| `monitor.grom.seg.br` | Netdata + Uptime Kuma | 10.0.1.13 |
+| Interno/VPN apenas | Home Assistant OS | 10.0.1.20 |
+| Interno/VPN apenas | Grom_Security | 10.0.1.30 |
+| Interno/VPN apenas | Netdata + Uptime Kuma | 10.0.1.13 |
 
 ---
 
@@ -228,7 +297,7 @@ Grom_Server/
 **Domínio**: grom.seg.br  
 **Versão**: 1.0.0  
 **Data de Início**: Junho 2026  
-**Status**: 📝 Documentação pronta - Aguardando implantação na rede final
+**Status**: Desenvolvimento ativo - Fase 1 aprovada com hardware atual
 
 ---
 

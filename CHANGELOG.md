@@ -1,5 +1,93 @@
 # Changelog - Grom Server
 
+## [1.1.1] - 2026-06-17
+
+### Confiabilidade operacional
+- Separado o desenvolvimento do `Grom_Security` como sistema/repositorio irmao do `Grom_Server`.
+- Adicionado `scripts/proxmox/audit-repository.sh` para auditar pacote local antes do deploy.
+- Adicionado `scripts/build-release.sh` para gerar pacote de release com manifesto e checksum.
+- Adicionado `scripts/proxmox/capacity-baseline.sh` para medir CPU, RAM, disco, rede, backup externo e margem para SigePol/Security.
+- Adicionado `scripts/proxmox/production-readiness-check.sh` como gate Go/No-Go antes de producao.
+- Adicionado `scripts/proxmox/restore-drill.sh` para ensaio seguro de restore sem sobrescrever producao.
+- Adicionado `scripts/proxmox/operational-health-check.sh` para monitorar VM/CT, servicos, recursos, backups e portas administrativas.
+- Deploy passa a instalar `grom-operational-health-check.sh` e agenda-lo a cada 15 minutos no Proxmox host.
+- Adicionado dashboard operacional em `apps/grom-seg/public/server/`, com acesso restrito por LAN/VPN.
+- Adicionado `docs/31-GO-NOGO-PRODUCAO.md` com criterios de liberacao do Server, Grom_SigePol e Grom_Security.
+- Integrada auditoria local ao `scripts/deploy-all.sh` antes da validacao de ambiente.
+- Validador pre-deploy passou a exigir a presenca do auditor local no pacote.
+
+### Seguranca
+- Auditoria local verifica sintaxe Bash, arquivos essenciais, CRLF em scripts, possiveis segredos operacionais versionados e aninhamento indevido do `Grom_Security`.
+
+## [1.1.0] - 2026-06-15
+
+### Segurança e LGPD
+- Definida transicao arquitetural para `Grom.Seg` como sistema unificado.
+- Documentado plano DNS para `grom.seg.br` no Registro.br/Dominios.br.
+- Adicionada arquitetura com VM120 Home Assistant OS e VM130 Grom_Security.
+- Adicionado baseline de arquitetura segura e compromisso LGPD.
+- Adicionado checklist de pre-implantacao para os proximos 45 dias.
+- Adicionada matriz de riscos e controles com rotina mensal de auditoria.
+- Adicionada politica operacional de automacao e baixa manutencao.
+- Adicionado principio de baixo custo sem comprometer seguranca, solidez e confiabilidade.
+- Adicionada politica para conta Google dedicada e uso de Drive apenas com backups criptografados.
+- Integrada a conta operacional `grom.servidor@gmail.com` em alertas, SSL e runbooks.
+- Monitoramento definido como acesso apenas por LAN/VPN.
+- CrowdSec deixou de ser instalacao automatica via script remoto; agora e opcional controlado.
+- Removido patch fragil no JavaScript do Proxmox para ocultar aviso de assinatura.
+- FastAPI base sem OpenAPI/Swagger publico.
+- Pagina temporaria PHP trocada por healthcheck minimo.
+
+### Backup e recuperacao
+- Adicionado `scripts/proxmox/backup-containers.sh` para backup `vzdump` da VM OPNsense e containers.
+- Backup de arquivos deixou de depender de SSH root entre containers.
+- Backup logico de banco mantido no CT112 com BorgBackup.
+- Rotina de backup Proxmox integrada ao orquestrador quando o HD externo estiver montado.
+
+### Rede e acesso remoto
+- Resolvido conflito de IDs: VM100 para OPNsense; CT110-CT114 para servicos.
+- Adicionado script de revogacao de clientes WireGuard.
+- Ajustado template WireGuard e permissoes dos arquivos de clientes.
+- Formalizada a Fase 1 com hardware atual: separacao WAN/LAN via adaptador Ugreen e switch TL-SG108 como LAN restrita sem VLAN.
+
+### Confiabilidade operacional
+- Adicionado `.gitattributes` para preservar LF em scripts Linux.
+- Adicionados diagramas Mermaid, matriz de portas, matriz de hosts e runbook da primeira implantacao.
+- Adicionado validador pre-deploy para bloquear pacote incompleto, variaveis ausentes e placeholders.
+- Adicionado validador pos-deploy para verificar VM/CT, servicos, backup e exposicao publica.
+- Adicionado relatorio operacional mensal com envio por e-mail quando SMTP estiver ativo.
+- Adicionado banco principal `grom_seg` e usuario `grom_seg_user` para a aplicacao unificada.
+- Adicionado script de criacao das VMs Home Assistant/Grom_Security e compose base do Grom_Security.
+- Adicionado runbook inicial de implantacao do Grom_Security com MQTT, compose e retencao.
+- Adicionada matriz de cameras/DVR com inventario exemplo para RTSP/ONVIF, OCR, garagem e lista branca.
+- Definida politica de gravacao: continua no DVR, eventos no Grom_Security e evidencias importantes em backup externo criptografado.
+- Definida preferencia por OpenVINO com GPU integrada Intel no Grom_Security, com fallback por CPU e Coral apenas como compra futura se necessario.
+- Adicionado suporte opcional a segundo HD externo em `/mnt/backup-external-2` para copia B/offline e evidencias importantes.
+- Criado motor de regras inicial do Grom_Security com regras de rua, pedestre, corredor lateral, fundos, garagem, sensor+camera e sabotagem.
+- Criada pasta raiz `Grom_Security/` como subprojeto separado, preparada para futuro repositorio GitHub privado.
+- Adicionada API FastAPI inicial do Grom_Security, Dockerfile, testes, scripts de instalacao/deploy e deploy remoto via Proxmox.
+- Adicionados scripts de preparacao offline para dependencias Python e imagens Docker do Grom_Security.
+- Adicionada persistencia SQLite de eventos, protecao opcional por `X-Grom-Token`, healthcheck Docker e scripts MQTT/OpenVINO.
+- Adicionado painel interno `/panel` para visualizar eventos e editar ativacao/severidade das regras do Grom_Security.
+- Adicionados simulador de eventos e auditoria de alteracoes de regras no painel interno.
+- Adicionado preflight automatizado do Grom_Security para validar prontidao da VM antes/depois do deploy.
+- Endurecido o deploy do Grom_Security com token local automatico, `.env` preservado e storage de evidencias preparado.
+- Adicionado rollback local do Grom_Security a partir dos snapshots operacionais gerados antes do deploy remoto.
+- Adicionados modos operacionais de alarme no Grom_Security para tablet/celular com auditoria.
+- Adicionado monitor operacional para TV com mosaico, overlay de alerta e destaque de zona no mapa.
+- Adicionado reconhecimento auditavel de alertas ativos do monitor operacional.
+- Adicionada outbox de notificacoes externas para Telegram, WhatsApp, SMS e e-mail em modo dry-run.
+- Adicionado processamento seguro da outbox de notificacoes, com endpoint protegido e script para automacao.
+- Preparado provedor SMTP/e-mail para notificacoes reais, com falha segura quando credenciais nao estiverem completas.
+- Definida a conta tecnica `grom.servidor@gmail.com` como disparador oficial de e-mail do Grom_Security.
+- Padronizada `grom.servidor@gmail.com` como comunicacao externa oficial do ecossistema Grom.
+- Scripts sensiveis agora exigem variaveis de segredo antes do deploy.
+- Composer passou a ser instalado com verificacao de assinatura.
+- Adicionados scripts de preparo offline/downloads e pacote `dist/grom-scripts.zip`.
+- Adicionado verificador de prontidao do Proxmox host.
+- Adicionado relay SMTP via Gmail com `msmtp`, usando senha de app apenas em ambiente local.
+- Adicionado sync externo opcional via `rclone crypt` para Google Drive.
+
 ## [1.0.0] - 2026-06-14
 
 ### Adicionado
@@ -17,7 +105,7 @@
 - Atualizações de segurança automáticas
 
 ### Infraestrutura
-- Proxmox VE 8.x como hypervisor
+- Proxmox VE 9.x como hypervisor
 - OPNsense como firewall com IDS/IPS (Suricata)
 - Ubuntu 24.04 LTS como SO base dos containers
 - Nginx como web server / reverse proxy
@@ -36,7 +124,7 @@
 
 ### Domínio
 - grom.seg.br (domínio principal)
-- web.grom.seg.br (Grom_web)
-- docs.grom.seg.br (Grom Documental)
+- grom.seg.br (Grom.Seg unificado)
+- web.grom.seg.br e docs.grom.seg.br (legados/transicao)
 - vpn.grom.seg.br (WireGuard VPN)
-- monitor.grom.seg.br (Monitoramento - futuro)
+- monitoramento interno/VPN apenas, sem subdominio publico

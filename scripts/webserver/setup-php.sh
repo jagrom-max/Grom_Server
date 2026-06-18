@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # GROM SERVER - Setup PHP 8.3-FPM
-# Executar DENTRO do container CT100 (grom-web)
+# Executar DENTRO do container CT110 (grom-web)
 # TOTALMENTE AUTOMATIZADO
 # =============================================================================
 
@@ -91,7 +91,16 @@ POOLEOF
 
 # 4. Instalar Composer
 info "Instalando Composer..."
-curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+EXPECTED_SIGNATURE="$(wget -q -O - https://composer.github.io/installer.sig)"
+php -r "copy('https://getcomposer.org/installer', '/tmp/composer-setup.php');"
+ACTUAL_SIGNATURE="$(php -r "echo hash_file('sha384', '/tmp/composer-setup.php');")"
+if [ "$EXPECTED_SIGNATURE" != "$ACTUAL_SIGNATURE" ]; then
+    rm -f /tmp/composer-setup.php
+    echo "Assinatura do instalador Composer invalida" >&2
+    exit 1
+fi
+php /tmp/composer-setup.php --quiet --install-dir=/usr/local/bin --filename=composer
+rm -f /tmp/composer-setup.php
 log "Composer instalado"
 
 # 5. Reiniciar PHP-FPM

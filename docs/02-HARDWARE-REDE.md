@@ -20,6 +20,7 @@
 - Não-gerenciável (plug and play)
 - Posição: Conectado à saída LAN (adaptador USB Ugreen)
 - Função: Distribuir rede LAN interna para dispositivos físicos
+- Status: **aprovado para a Fase 1** do projeto
 
 ### Backup: HD Externo 1TB USB 3.0
 
@@ -104,7 +105,7 @@ a separação física completa entre o tráfego externo e interno.
    ║  │  PROXMOX VE - vmbr1 (Bridge LAN)                       │  ║
    ║  │       │         │         │         │         │         │  ║
    ║  │       ▼         ▼         ▼         ▼         ▼         │  ║
-   ║  │    CT100     CT101     CT102     CT103     CT104        │  ║
+   ║  │    CT110     CT111     CT112     CT113     CT114        │  ║
    ║  │    Web       MySQL     Backup    Monitor   VPN          │  ║
    ║  │    .10       .11       .12       .13       .14          │  ║
    ║  └─────────────────────────────────────────────────────────┘  ║
@@ -141,6 +142,16 @@ O switch fica na **saída LAN** (porta Ugreen) e serve para:
 
 > **Nota**: Os containers LXC não precisam do switch — eles se comunicam via bridge
 > virtual (`vmbr1`) dentro do Proxmox. O switch é para dispositivos físicos externos.
+
+### Restrições operacionais do switch atual
+
+Como o switch atual não faz VLAN, a LAN física deve ser tratada como ambiente restrito:
+
+- Conectar somente equipamentos necessários e confiáveis.
+- Não ligar rede de visitantes, dispositivos pessoais desconhecidos ou IoT nesse switch.
+- Preferir administração remota via WireGuard, mesmo quando estiver na rede local.
+- Manter Proxmox, OPNsense, SSH, MySQL e monitoramento bloqueados para a internet.
+- Quando a rede definitiva estiver pronta, migrar para switch gerenciável se houver necessidade de separar servidores, administração e usuários por VLAN.
 
 ---
 

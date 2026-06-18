@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grom Server - Monitoramento</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar" aria-label="Navegacao principal">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">G</div>
+        <div>
+          <strong>Grom</strong>
+          <span>Server</span>
+        </div>
+      </div>
+
+      <nav>
+        <a class="active" href="#resumo">Resumo</a>
+        <a href="#recursos">Recursos</a>
+        <a href="#servicos">Servicos</a>
+        <a href="#backups">Backups</a>
+        <a href="#seguranca">Seguranca</a>
+      </nav>
+
+      <div class="sidebar-status">
+        <span class="dot" id="sidebar-dot"></span>
+        <span id="sidebar-status-text">Carregando</span>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Painel operacional</p>
+          <h1>Monitoramento do Grom Server</h1>
+        </div>
+        <div class="top-actions">
+          <span id="updated-at">Atualizando...</span>
+          <button id="refresh" type="button" title="Atualizar agora">Atualizar</button>
+        </div>
+      </header>
+
+      <section id="resumo" class="summary-grid" aria-label="Resumo operacional">
+        <article class="status-card primary">
+          <span class="label">Estado geral</span>
+          <strong id="overall-status">Carregando</strong>
+          <p id="overall-detail">Aguardando dados do healthcheck.</p>
+        </article>
+        <article class="status-card">
+          <span class="label">Falhas</span>
+          <strong id="fail-count">0</strong>
+          <p>Itens que exigem correcao antes de producao.</p>
+        </article>
+        <article class="status-card">
+          <span class="label">Avisos</span>
+          <strong id="warn-count">0</strong>
+          <p>Pontos que devem ser revisados e aceitos.</p>
+        </article>
+        <article class="status-card">
+          <span class="label">Sistemas</span>
+          <strong id="service-count">0/0</strong>
+          <p>VMs, containers e servicos principais.</p>
+        </article>
+      </section>
+
+      <section id="recursos" class="panel">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Capacidade</p>
+            <h2>Recursos do host</h2>
+          </div>
+        </div>
+
+        <div class="metric-grid">
+          <article class="metric">
+            <div class="metric-head">
+              <span>CPU</span>
+              <strong id="cpu-value">--</strong>
+            </div>
+            <div class="bar"><span id="cpu-bar"></span></div>
+          </article>
+          <article class="metric">
+            <div class="metric-head">
+              <span>Memoria</span>
+              <strong id="memory-value">--</strong>
+            </div>
+            <div class="bar"><span id="memory-bar"></span></div>
+          </article>
+          <article class="metric">
+            <div class="metric-head">
+              <span>Disco principal</span>
+              <strong id="disk-value">--</strong>
+            </div>
+            <div class="bar"><span id="disk-bar"></span></div>
+          </article>
+          <article class="metric">
+            <div class="metric-head">
+              <span>Backup externo</span>
+              <strong id="backup-disk-value">--</strong>
+            </div>
+            <div class="bar"><span id="backup-disk-bar"></span></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="servicos" class="panel">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Disponibilidade</p>
+            <h2>VMs, containers e servicos</h2>
+          </div>
+        </div>
+        <div class="service-list" id="services"></div>
+      </section>
+
+      <section id="backups" class="split">
+        <article class="panel">
+          <div class="section-title">
+            <div>
+              <p class="eyebrow">Continuidade</p>
+              <h2>Backups</h2>
+            </div>
+          </div>
+          <div class="facts">
+            <div><span>Banco de dados</span><strong id="db-backup-age">--</strong></div>
+            <div><span>VM/LXC</span><strong id="vm-backup-age">--</strong></div>
+            <div><span>Restore drill</span><strong id="restore-status">--</strong></div>
+          </div>
+        </article>
+
+        <article id="seguranca" class="panel">
+          <div class="section-title">
+            <div>
+              <p class="eyebrow">Exposicao</p>
+              <h2>Seguranca</h2>
+            </div>
+          </div>
+          <div class="facts">
+            <div><span>Portas administrativas</span><strong id="admin-ports">--</strong></div>
+            <div><span>VPN</span><strong id="vpn-status">--</strong></div>
+            <div><span>Go/No-Go</span><strong id="gono-status">--</strong></div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>

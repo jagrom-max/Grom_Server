@@ -1,10 +1,10 @@
 # 🌐 Configuração do Servidor Web
 
-## Container LXC: CT100 - Web Server
+## Container LXC: CT110 - Web Server
 
 | Parâmetro | Valor |
 |---|---|
-| **ID** | 100 |
+| **ID** | 110 |
 | **Hostname** | grom-web |
 | **SO** | Ubuntu 24.04 LTS |
 | **RAM** | 4GB |
@@ -24,11 +24,11 @@
 - Rate limiting e proteção DDoS básica
 
 ### PHP 8.3-FPM
-- Para aplicação Grom_web
+- Para aplicacao Grom.Seg
 - Extensões: mysql, mbstring, xml, gd, curl, opcache, zip
 
 ### Python 3.12+
-- Para Grom Documental
+- Para modulos internos/documentais em transicao
 - Framework: FastAPI ou Flask
 - ASGI/WSGI: Gunicorn + Uvicorn workers
 - Ambiente virtual isolado (venv)
@@ -40,7 +40,10 @@
 ### Config Principal (`/etc/nginx/nginx.conf`)
 Ver arquivo: `configs/nginx/nginx.conf`
 
-### Grom_web VHost (`/etc/nginx/sites-available/grom-web.conf`)
+### Grom.Seg VHost (`/etc/nginx/sites-available/grom.seg.br.conf`)
+Ver arquivo: `configs/nginx/grom-seg.conf`
+
+### Grom_web legado (`/etc/nginx/sites-available/web.grom.seg.br.conf`)
 Ver arquivo: `configs/nginx/grom-web.conf`
 
 ### Grom Documental VHost (`/etc/nginx/sites-available/grom-documental.conf`)
@@ -61,8 +64,9 @@ apt install certbot python3-certbot-nginx -y
 ### Obter Certificados
 ```bash
 # Para cada domínio
-certbot --nginx -d gromweb.seudominio.com.br
-certbot --nginx -d docs.seudominio.com.br
+certbot --nginx -d grom.seg.br
+certbot --nginx -d web.grom.seg.br
+certbot --nginx -d docs.grom.seg.br
 ```
 
 ### Renovação Automática
@@ -77,7 +81,8 @@ systemctl status certbot.timer
 
 ```
 /var/www/
-├── grom-web/              # Aplicação PHP
+├── grom-seg/              # Aplicacao principal unificada
+├── grom-web/              # Aplicacao PHP legada
 │   ├── public/            # Document root
 │   │   ├── index.php
 │   │   ├── css/

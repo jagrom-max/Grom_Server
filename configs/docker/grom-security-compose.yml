@@ -1,0 +1,64 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: grom-mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+
+  grom-security-api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    container_name: grom-security-api
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../rules:/app/rules:ro
+      - ../configs:/app/configs:ro
+      - ../storage/media:/media
+    environment:
+      - TZ=America/Sao_Paulo
+      - GROM_SECURITY_ENV=production
+      - GROM_SECURITY_RULES_FILE=/app/rules/security-rules.example.yml
+      - GROM_SECURITY_CAMERAS_FILE=/app/configs/cameras.inventory.example.yml
+      - GROM_SECURITY_DATABASE_URL=sqlite:////media/grom-security.sqlite3
+      - GROM_SECURITY_API_TOKEN=${GROM_SECURITY_API_TOKEN:?defina GROM_SECURITY_API_TOKEN em .env local}
+      - GROM_SECURITY_NOTIFICATION_CHANNELS=${GROM_SECURITY_NOTIFICATION_CHANNELS:-telegram,email}
+      - GROM_SECURITY_NOTIFICATION_DRY_RUN=${GROM_SECURITY_NOTIFICATION_DRY_RUN:-true}
+      - MQTT_HOST=mosquitto
+      - MYSQL_HOST=10.0.1.11
+    depends_on:
+      - mosquitto
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=3).read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Frigate/OpenCV/OCR devem ser ativados somente depois de definir cameras,
+  # retencao, OpenVINO/iGPU e capacidade de CPU/storage.
+  # Ver docs/26-HOME-ASSISTANT-GROM-SECURITY.md e docs/27-GROM-SECURITY-IMPLANTACAO.md.
+  #
+  # Exemplo futuro para Frigate com Intel iGPU:
+  #
+  # frigate:
+  #   image: ghcr.io/blakeblackshear/frigate:stable
+  #   container_name: grom-frigate
+  #   restart: unless-stopped
+  #   shm_size: "512mb"
+  #   devices:
+  #     - /dev/dri/renderD128:/dev/dri/renderD128
+  #   volumes:
+  #     - ./frigate/config:/config
+  #     - ./media/frigate:/media/frigate
+  #     - /etc/localtime:/etc/localtime:ro
+  #   ports:
+  #     - "8971:8971"

@@ -1,0 +1,185 @@
+# Regras exemplo do motor Grom_Security.
+# Este arquivo nao deve conter dados reais de pessoas, placas ou locais sensiveis.
+
+metadata:
+  version: 1
+  owner: grom_security
+  timezone: America/Sao_Paulo
+  default_snapshot: true
+  default_short_clip_seconds: 12
+
+alert_levels:
+  low:
+    notify: dashboard
+    retain_days: 7
+  medium:
+    notify: dashboard_telegram
+    retain_days: 15
+  high:
+    notify: dashboard_telegram
+    retain_days: 30
+  critical:
+    notify: dashboard_telegram_siren_light
+    retain_days: 90
+  technical:
+    notify: dashboard_telegram
+    retain_days: 30
+
+zones:
+  rua:
+    cameras:
+      - rua_frente
+    purpose: recurrence_detection
+  frente_imovel:
+    cameras:
+      - rua_frente
+      - im7_contexto
+    purpose: loitering_detection
+  corredor_lateral:
+    cameras:
+      - corredor_lateral
+    purpose: perimeter_intrusion
+  fundos:
+    cameras:
+      - fundos_quintal
+    purpose: armed_area_intrusion
+  garagem:
+    cameras:
+      - garagem_entrada_dvr_ch01
+      - garagem_interna
+    purpose: vehicle_presence_whitelist
+
+rules:
+  - id: rua_vehicle_recurrence
+    name: REGRA 1 - Rua
+    enabled: true
+    severity: medium
+    when:
+      event_type: vehicle_detected
+      zone: rua
+      recurrence:
+        count: 3
+        window_minutes: 20
+        match_by:
+          - plate
+          - visual_tracking_id
+    actions:
+      - register_event
+      - create_snapshot
+      - send_alert
+    message: "Veiculo recorrente na rua: 3 passagens em 20 minutos."
+
+  - id: pedestrian_loitering_front
+    name: REGRA 2 - Pedestre
+    enabled: true
+    severity: medium
+    when:
+      event_type: person_detected
+      zone: frente_imovel
+      duration_seconds: 90
+    actions:
+      - register_event
+      - create_snapshot
+      - send_alert_with_image
+    message: "Pessoa permaneceu diante do imovel por mais de 90 segundos."
+
+  - id: side_corridor_night_person
+    name: REGRA 3 - Corredor lateral
+    enabled: true
+    severity: critical
+    when:
+      event_type: person_detected
+      zone: corredor_lateral
+      schedule:
+        start: "22:00"
+        end: "06:00"
+    actions:
+      - register_event
+      - create_snapshot
+      - create_short_clip
+      - send_critical_alert
+      - trigger_siren_light_if_configured
+    message: "Pessoa detectada no corredor lateral no periodo noturno."
+
+  - id: backyard_armed_motion
+    name: REGRA 4 - Fundos
+    enabled: true
+    severity: critical
+    when:
+      event_type:
+        - motion_detected
+        - person_detected
+      zone: fundos
+      alarm_mode:
+        - away
+        - night
+        - perimeter
+        - armed_away
+        - armed_night
+    actions:
+      - register_event
+      - create_snapshot
+      - create_short_clip
+      - send_critical_alert
+    message: "Movimento ou pessoa detectada no quintal dos fundos com alarme armado."
+
+  - id: garage_unknown_vehicle
+    name: REGRA 5 - Garagem
+    enabled: true
+    severity: high
+    when:
+      event_type: vehicle_detected
+      zone: garagem
+      whitelist:
+        list: vehicles
+        condition: not_registered
+    actions:
+      - register_event
+      - create_snapshot
+      - create_short_clip
+      - send_alert
+    message: "Veiculo nao cadastrado detectado dentro da garagem."
+
+  - id: sensor_camera_confirmed_person
+    name: REGRA 6 - Sensor + camera
+    enabled: true
+    severity: critical
+    when:
+      all:
+        - event_type: opening_sensor_triggered
+        - event_type: person_detected
+      correlation_window_seconds: 20
+    actions:
+      - register_event
+      - create_snapshot
+      - create_short_clip
+      - send_critical_alert
+      - trigger_siren_light_if_configured
+    message: "Sensor de abertura disparou e camera confirmou pessoa."
+
+  - id: critical_camera_sabotage
+    name: REGRA 7 - Sabotagem
+    enabled: true
+    severity: technical
+    escalation_severity: critical
+    when:
+      event_type:
+        - camera_offline
+        - camera_obstructed
+      camera_class: critical
+      duration_seconds: 30
+    actions:
+      - register_technical_event
+      - send_alert
+      - escalate_if_alarm_armed
+    message: "Camera critica perdeu sinal ou aparenta obstrucao."
+
+privacy:
+  telegram:
+    send_full_image: false
+    send_redacted_image_first: true
+  logs:
+    store_raw_plate: true
+    require_role_for_plate_view: true
+  evidence:
+    require_manual_marking_for_long_retention: true

@@ -1,15 +1,16 @@
 #!/bin/bash
 # =============================================================================
 # GROM SERVER - Setup SSL/TLS com Let's Encrypt
-# Executar DENTRO do container CT100 (grom-web)
+# Executar DENTRO do container CT110 (grom-web)
 # TOTALMENTE AUTOMATIZADO com renovação automática
 # =============================================================================
 
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
-DOMAIN="grom.seg.br"
-EMAIL="admin@${DOMAIN}"
+DOMAIN="${GROM_DOMAIN:-grom.seg.br}"
+APP_DOMAIN="${GROM_APP_DOMAIN:-$DOMAIN}"
+EMAIL="${GROM_CONTACT_EMAIL:-grom.servidor@gmail.com}"
 
 log() { echo -e "\033[0;32m[✓]\033[0m $1"; }
 info() { echo -e "\033[0;34m[i]\033[0m $1"; }
@@ -27,6 +28,7 @@ log "Certbot instalado"
 info "Obtendo certificados SSL..."
 certbot --nginx --non-interactive --agree-tos \
     --email "${EMAIL}" \
+    -d "${APP_DOMAIN}" \
     -d "web.${DOMAIN}" \
     -d "docs.${DOMAIN}" \
     --redirect \

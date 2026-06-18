@@ -1,0 +1,136 @@
+# Inventario exemplo de cameras do Grom_Security.
+# Nao colocar senhas reais neste arquivo.
+
+site:
+  name: grom_server
+  network: 10.0.1.0/24
+
+dvr:
+  - id: dvr_intelbras_imhdx_3008
+    vendor: Intelbras
+    model: iMHDX 3008
+    ip: 10.0.1.40
+    integration:
+      rtsp: true
+      onvif: true
+    auth:
+      username_env: DVR_INTELBRAS_USER
+      password_env: DVR_INTELBRAS_PASSWORD
+    notes: "Usar usuario de leitura para streams RTSP/ONVIF."
+
+cameras:
+  - id: garagem_entrada_dvr_ch01
+    source: dvr_intelbras_imhdx_3008
+    channel: 1
+    type: dvr_channel
+    role: vehicle_presence
+    zone: garagem
+    streams:
+      detect: rtsp://camera.example.local/garagem_entrada_substream
+      record: rtsp://camera.example.local/garagem_entrada_mainstream
+    analytics:
+      presence: true
+      plate_ocr: false
+      snapshots: true
+      short_clips: true
+
+  - id: vigi_c330i_entrada
+    source: direct_ip
+    vendor: TP-Link
+    model: VIGI C330I
+    ip: 10.0.1.41
+    type: ip_camera
+    role: plate_or_access_context
+    zone: entrada
+    integration:
+      rtsp: true
+      onvif: true
+    auth:
+      username_env: VIGI_C330I_USER
+      password_env: VIGI_C330I_PASSWORD
+    streams:
+      detect: rtsp://camera.example.local/vigi_c330i_substream
+      record: rtsp://camera.example.local/vigi_c330i_mainstream
+    analytics:
+      presence: true
+      plate_ocr: true
+      snapshots: true
+      short_clips: true
+
+  - id: im7_contexto
+    source: direct_ip
+    model: IM7
+    ip: 10.0.1.42
+    type: ip_camera
+    role: context
+    zone: contexto
+    integration:
+      rtsp: true
+      onvif: true
+    auth:
+      username_env: IM7_USER
+      password_env: IM7_PASSWORD
+    streams:
+      detect: rtsp://camera.example.local/im7_substream
+      record: rtsp://camera.example.local/im7_mainstream
+    analytics:
+      presence: true
+      plate_ocr: false
+      snapshots: true
+      short_clips: false
+
+  - id: rua_frente
+    source: dvr_intelbras_imhdx_3008
+    channel: 2
+    type: dvr_channel
+    role: street_recurrence
+    zone: rua
+    analytics:
+      vehicle_recurrence: true
+      person_loitering: true
+      snapshots: true
+      short_clips: true
+
+  - id: corredor_lateral
+    source: dvr_intelbras_imhdx_3008
+    channel: 3
+    type: dvr_channel
+    role: perimeter_intrusion
+    zone: corredor_lateral
+    camera_class: critical
+    analytics:
+      presence: true
+      night_intrusion: true
+      snapshots: true
+      short_clips: true
+
+  - id: fundos_quintal
+    source: dvr_intelbras_imhdx_3008
+    channel: 4
+    type: dvr_channel
+    role: armed_area_intrusion
+    zone: fundos
+    camera_class: critical
+    analytics:
+      motion: true
+      presence: true
+      snapshots: true
+      short_clips: true
+
+  - id: garagem_interna
+    source: direct_ip_or_dvr
+    type: camera
+    role: vehicle_whitelist
+    zone: garagem
+    camera_class: critical
+    analytics:
+      vehicle_detection: true
+      whitelist_check: true
+      snapshots: true
+      short_clips: true
+
+retention:
+  detection_cache_hours: 72
+  common_snapshot_days: 15
+  common_clip_days: 7
+  continuous_recording_on_server: false

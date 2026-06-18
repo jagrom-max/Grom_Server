@@ -105,6 +105,8 @@ Alias: SERVERS
   10.0.1.12  # Backup
   10.0.1.13  # Monitoring
   10.0.1.14  # WireGuard
+  10.0.1.20  # Home Assistant OS
+  10.0.1.30  # Grom_Security
 
 Alias: WEB_PORTS
   80, 443
@@ -138,15 +140,35 @@ Para serviços acessíveis externamente:
 | 443 | TCP | 10.0.1.10 | 443 | HTTPS |
 | 51820 | UDP | 10.0.1.14 | 51820 | WireGuard |
 
+Nao criar NAT publico para:
+- Home Assistant `10.0.1.20`;
+- Grom_Security `10.0.1.30`;
+- MQTT `1883`;
+- Frigate/painel de video;
+- APIs internas de eventos.
+
+## Cameras, DVR e RTSP/ONVIF
+
+Quando DVR/cameras forem ativados, aplicar regra conservadora:
+
+| Origem | Destino | Portas | Acao | Motivo |
+|---|---|---:|---|---|
+| VM130 Grom_Security | DVR/cameras | RTSP/ONVIF conforme equipamento | Permitir restrito | Leitura de streams e descoberta controlada |
+| DVR/cameras | Internet | Qualquer | Bloquear | Impedir acesso remoto direto e telemetria desnecessaria |
+| Internet | DVR/cameras | Qualquer | Bloquear | Nunca expor painel, RTSP ou ONVIF publicamente |
+| LAN administrativa/VPN | DVR/cameras | HTTPS/porta admin conforme equipamento | Permitir restrito | Administracao tecnica |
+
+Referencia: `docs/28-CAMERAS-DVR-VIDEO.md`.
+
 ---
 
 ## Backup da Configuração
 
 ```
 System → Configuration → Backups
-- Habilitar Google Drive backup (gratuito)
-- Ou download manual periódico do XML
-- Guardar cópia no repositório (sem senhas!)
+- Fazer download manual do XML após mudanças relevantes
+- Guardar cópia criptografada no cofre/HD externo offline
+- Não salvar XML completo no repositório, pois pode conter segredos
 ```
 
 ---

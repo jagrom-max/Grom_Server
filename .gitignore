@@ -10,6 +10,8 @@
 .env
 .env.*
 !.env.example
+grom.env
+*.env.local
 
 # Chaves SSH
 id_rsa
@@ -23,12 +25,18 @@ id_ed25519
 *.swp
 *~
 
+# Artefatos gerados localmente
+downloads/
+dist/
+
 # Logs
 *.log
 logs/
 
 # Diretórios de dados
 data/
+!apps/grom-seg/public/server/data/
+!apps/grom-seg/public/server/data/status.json
 dumps/
 
 # Cache
@@ -54,4 +62,6 @@ desktop.ini
 
 # Borg passphrase
 .borg_passphrase
+.grom_backup_env
+.grom_mysql_credentials
 borg-keys/

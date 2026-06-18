@@ -21,7 +21,7 @@ Internet (650Mbps)
 │  ETH0 (Onboard) ──► WAN (OPNsense)       │
 │  ETH1 (USB Ugreen 2.5G) ──► LAN Interna  │
 │                                           │
-│  Proxmox VE 8.x                           │
+│  Proxmox VE 9.x                           │
 │  ├── vmbr0 (Bridge WAN - eth0)            │
 │  └── vmbr1 (Bridge LAN - eth1/USB)        │
 └──────────────────────────────────────────┘
@@ -41,32 +41,33 @@ Internet (650Mbps)
 - Configurar DMZ apontando para o Mini PC
 - Port forwarding das portas necessárias
 
-### 1.3 Endereçamento IP
+### 1.3 Endereçamento IP - Fase 1 com hardware atual
 
 | Rede | CIDR | Gateway | Função |
 |---|---|---|---|
 | WAN | DHCP do ISP | ISP | Internet |
-| LAN Servidores | 10.0.1.0/24 | 10.0.1.1 | Rede interna servidores |
-| LAN Wi-Fi | 10.0.2.0/24 | 10.0.2.1 | Dispositivos Wi-Fi |
+| LAN Restrita | 10.0.1.0/24 | 10.0.1.1 | Servidores e manutencao local |
 | VPN | 10.0.10.0/24 | 10.0.10.1 | Clientes VPN |
+
+> A separacao inicial sera fisica: WAN na porta onboard e LAN no adaptador Ugreen USB 2.5G. O switch atual distribui apenas a LAN restrita e nao fara VLAN.
 
 ### 1.4 Atribuição de IPs Fixos
 
-| Host | IP | VLAN | Função |
-|---|---|---|---|
-| OPNsense LAN | 10.0.1.1 | - | Gateway / Firewall |
-| Web Server | 10.0.1.10 | - | Nginx + PHP + Python |
-| MySQL Server | 10.0.1.11 | - | Banco de dados |
-| Backup Server | 10.0.1.12 | - | BorgBackup |
-| Monitoring | 10.0.1.13 | - | Netdata + Uptime Kuma |
-| WireGuard VPN | 10.0.1.14 | - | Servidor VPN |
+| Host | IP | Função |
+|---|---|---|
+| OPNsense LAN | 10.0.1.1 | Gateway / Firewall |
+| Web Server | 10.0.1.10 | Nginx + PHP + Python |
+| MySQL Server | 10.0.1.11 | Banco de dados |
+| Backup Server | 10.0.1.12 | BorgBackup |
+| Monitoring | 10.0.1.13 | Netdata + Uptime Kuma |
+| WireGuard VPN | 10.0.1.14 | Servidor VPN |
 
 ---
 
 ## Fase 2: Instalação do Proxmox VE
 
 ### 2.1 Pré-requisitos
-1. Download da ISO do Proxmox VE 8.x: https://www.proxmox.com/downloads
+1. Download da ISO do Proxmox VE 9.x: https://www.proxmox.com/downloads
 2. Criar pendrive bootável com Balena Etcher ou Rufus
 3. Backup de qualquer dado existente no Mini PC
 
@@ -79,7 +80,7 @@ Internet (650Mbps)
 6. Gateway: IP do roteador atual
 7. DNS: `1.1.1.1` (Cloudflare)
 8. Senha forte para root
-9. Email para alertas
+9. Email para alertas: `grom.servidor@gmail.com`
 
 ### 2.3 Pós-Instalação
 - Executar script `scripts/proxmox/post-install.sh`
@@ -121,11 +122,11 @@ Internet (650Mbps)
 - Desabilitar login root por senha
 
 ### 4.2 Ordem de Criação
-1. **CT100** - Web Server
-2. **CT101** - MySQL Server  
-3. **CT102** - Backup Server
-4. **CT103** - Monitoring
-5. **CT104** - WireGuard VPN
+1. **CT110** - Web Server
+2. **CT111** - MySQL Server
+3. **CT112** - Backup Server
+4. **CT113** - Monitoring
+5. **CT114** - WireGuard VPN
 
 ---
 
@@ -138,8 +139,8 @@ Internet (650Mbps)
 - Node.js 20 LTS (se necessário)
 
 ### 5.2 Aplicações
-- **Grom_web**: Aplicação PHP com MySQL
-- **Grom Documental**: Aplicação Python (Flask/FastAPI)
+- **Grom.Seg**: Aplicacao unificada principal
+- **Modulos legados**: Grom_web, Grom Documental e OCR durante transicao
 - Reverse proxy para ambas via Nginx
 
 ---
@@ -153,19 +154,20 @@ Internet (650Mbps)
 - Backups automáticos
 
 ### 6.2 Bancos de Dados
-- `grom_web` - Banco principal da aplicação web
-- `grom_documental` - Banco do sistema documental
+- `grom_seg` - Banco principal da aplicacao unificada
+- `grom_web` - Banco legado da aplicacao web
+- `grom_documental` - Banco legado do sistema documental
 
 ---
 
 ## Fase 7: Deploy das Aplicações
 
-### 7.1 Grom_web (PHP)
+### 7.1 Grom.Seg
 - Deploy via Git
 - Configuração de VirtualHost
 - SSL/TLS com Let's Encrypt
 
-### 7.2 Grom Documental (Python)
+### 7.2 Modulos legados/documentais
 - Deploy via Git com venv
 - Gunicorn como WSGI/ASGI
 - Systemd service
@@ -183,13 +185,15 @@ Internet (650Mbps)
 ### 8.2 Ferramentas
 - **BorgBackup**: Backup incremental, deduplificado, criptografado
 - **mysqldump**: Backup lógico do MySQL
+- **vzdump**: Backup de VM/containers no Proxmox host
 - **rsync**: Sincronização com HD externo
 
 ### 8.3 Agenda
 | Tipo | Frequência | Retenção | Destino |
 |---|---|---|---|
 | DB Dump | A cada 6h | 7 dias | Local + HD Externo |
-| Arquivos web | Diário | 30 dias | Local + HD Externo |
+| VM/LXC Proxmox | Diário | 30 dias | HD Externo |
+| Fontes montadas opcionais | Diário | 30 dias | Local + HD Externo |
 | Configs sistema | Semanal | 90 dias | Local + HD Externo |
 | VM/LXC Snapshot | Semanal | 4 snapshots | Proxmox |
 | Full backup | Mensal | 6 meses | HD Externo |
@@ -231,7 +235,7 @@ Internet (650Mbps)
 - [ ] SSH apenas com chave pública
 - [ ] 2FA habilitado no Proxmox
 - [ ] Fail2Ban configurado em todos os servidores
-- [ ] CrowdSec instalado e configurado
+- [ ] CrowdSec avaliado e, se adotado, instalado por repositório oficial
 - [ ] Firewall OPNsense com regras restritivas
 - [ ] IDS/IPS (Suricata) ativo
 - [ ] Certificados SSL em todos os serviços web

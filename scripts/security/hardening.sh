@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # GROM SERVER - Hardening de Segurança
-# Executar em CADA container LXC (CT100-CT104)
+# Executar em CADA container LXC (CT110-CT114)
 # TOTALMENTE AUTOMATIZADO
 # =============================================================================
 
@@ -12,6 +12,7 @@ log() { echo -e "\033[0;32m[✓]\033[0m $1"; }
 info() { echo -e "\033[0;34m[i]\033[0m $1"; }
 
 HOSTNAME=$(hostname)
+ALERT_EMAIL="${GROM_ALERT_EMAIL:-grom.servidor@gmail.com}"
 echo "============================================"
 echo "  GROM SERVER - Hardening: ${HOSTNAME}"
 echo "============================================"
@@ -104,14 +105,15 @@ systemctl enable fail2ban
 systemctl restart fail2ban
 log "Fail2Ban configurado"
 
-# 4. CrowdSec (proteção colaborativa)
-info "Instalando CrowdSec..."
-curl -s https://install.crowdsec.net | bash 2>/dev/null || {
-    # Fallback: instalar via repositório
-    curl -s https://packagecloud.io/install/repositories/crowdsec/crowdsec/script.deb.sh | bash 2>/dev/null
-    apt-get install -y -qq crowdsec crowdsec-firewall-bouncer-iptables 2>/dev/null
-} || true
-log "CrowdSec instalado (proteção colaborativa)"
+# 4. CrowdSec (opcional)
+if [ "${INSTALL_CROWDSEC:-0}" = "1" ]; then
+    info "Instalando CrowdSec via repositorio previamente configurado..."
+    apt-get install -y -qq crowdsec crowdsec-firewall-bouncer-iptables 2>/dev/null || {
+        echo "CrowdSec nao instalado. Configure o repositorio oficial manualmente e execute novamente." >&2
+    }
+else
+    info "CrowdSec pulado por padrao. Ative com INSTALL_CROWDSEC=1 apos configurar repositorio oficial."
+fi
 
 # 5. Atualizações automáticas de segurança
 info "Configurando atualizações automáticas..."
@@ -124,9 +126,10 @@ Unattended-Upgrade::Allowed-Origins {
 Unattended-Upgrade::AutoFixInterruptedDpkg "true";
 Unattended-Upgrade::Remove-Unused-Dependencies "true";
 Unattended-Upgrade::Automatic-Reboot "false";
-Unattended-Upgrade::Mail "root";
+Unattended-Upgrade::Mail "__GROM_ALERT_EMAIL__";
 Unattended-Upgrade::MailReport "on-change";
 UUEOF
+sed -i "s/__GROM_ALERT_EMAIL__/${ALERT_EMAIL//\//\\/}/g" /etc/apt/apt.conf.d/50unattended-upgrades
 
 cat > /etc/apt/apt.conf.d/20auto-upgrades << 'AUTOEOF'
 APT::Periodic::Update-Package-Lists "1";
@@ -188,7 +191,7 @@ echo "  ✅ Hardening aplicado em: ${HOSTNAME}"
 echo ""
 echo "  SSH: Apenas chave pública, sem root"
 echo "  Fail2Ban: Ativo (ban 1h após 3 tentativas)"
-echo "  CrowdSec: Proteção colaborativa"
+echo "  CrowdSec: Opcional (INSTALL_CROWDSEC=1)"
 echo "  Updates: Automáticos para segurança"
 echo "  Kernel: Hardened"
 echo "============================================"

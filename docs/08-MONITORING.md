@@ -1,10 +1,10 @@
 # 📊 Monitoramento e Alertas
 
-## Container LXC: CT103 - Monitoring
+## Container LXC: CT113 - Monitoring
 
 | Parâmetro | Valor |
 |---|---|
-| **ID** | 103 |
+| **ID** | 113 |
 | **Hostname** | grom-monitor |
 | **SO** | Ubuntu 24.04 LTS |
 | **RAM** | 1GB |
@@ -16,18 +16,24 @@
 
 ## Ferramentas de Monitoramento
 
+### 0. Grom Server Dashboard
+- Painel operacional simples e visual em `https://grom.seg.br/server/`
+- Acesso permitido apenas pela LAN `10.0.1.0/24` ou VPN `10.0.10.0/24`
+- Mostra estado geral, CPU, memoria, disco, backup, VMs/containers, servicos e exposicao administrativa
+- Dados atualizados pelo `grom-operational-health-check.sh`
+
 ### 1. Netdata (Métricas em Tempo Real)
 - Dashboard web interativo
 - Métricas de CPU, RAM, disco, rede
 - Alertas configuráveis
 - Agente leve em cada container
-- URL: `http://10.0.1.13:19999`
+- URL: `http://10.0.1.13:19999` apenas via LAN/VPN
 
 ### 2. Uptime Kuma (Monitoramento de Uptime)
 - Monitoramento HTTP/HTTPS, TCP, DNS, ping
 - Dashboard de status
 - Alertas por email, Telegram, Discord
-- URL: `http://10.0.1.13:3001`
+- URL: `http://10.0.1.13:3001` apenas via LAN/VPN
 
 ---
 
@@ -41,7 +47,7 @@ sh /tmp/netdata-kickstart.sh --stable-channel
 
 ### Agente em cada container
 ```bash
-# Instalar agente Netdata em CT100, CT101, CT102, CT104
+# Instalar agente Netdata em CT110, CT111, CT112, CT114
 wget -O /tmp/netdata-kickstart.sh https://get.netdata.cloud/kickstart.sh
 sh /tmp/netdata-kickstart.sh --stable-channel
 ```
@@ -64,8 +70,9 @@ docker run -d --restart=always \
 
 | Serviço | Tipo | Alvo | Intervalo |
 |---|---|---|---|
-| Web Server | HTTP | https://gromweb.dominio | 60s |
-| Grom Documental | HTTP | https://docs.dominio | 60s |
+| Grom.Seg | HTTP | https://grom.seg.br | 60s |
+| Grom Web legado | HTTP | https://web.grom.seg.br | 60s |
+| Grom Documental legado | HTTP | https://docs.grom.seg.br | 60s |
 | MySQL | TCP | 10.0.1.11:3306 | 60s |
 | OPNsense | Ping | 10.0.1.1 | 30s |
 | WireGuard | Ping | 10.0.1.14 | 60s |

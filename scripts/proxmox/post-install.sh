@@ -43,25 +43,14 @@ fi
 
 # Adicionar repositório no-subscription
 PVE_NOSUB="/etc/apt/sources.list.d/pve-no-subscription.list"
+DEBIAN_CODENAME=$(. /etc/os-release && echo "${VERSION_CODENAME:-bookworm}")
 if [ ! -f "$PVE_NOSUB" ] || ! grep -q "pve-no-subscription" "$PVE_NOSUB" 2>/dev/null; then
-    echo "deb http://download.proxmox.com/debian/pve bookworm pve-no-subscription" > "$PVE_NOSUB"
-    log "Repositório no-subscription adicionado"
+    echo "deb http://download.proxmox.com/debian/pve ${DEBIAN_CODENAME} pve-no-subscription" > "$PVE_NOSUB"
+    log "Repositório no-subscription adicionado (${DEBIAN_CODENAME})"
 fi
 
 # -----------------------------------------------------------------------------
-# 2. Remover popup de assinatura na WebGUI
-# -----------------------------------------------------------------------------
-info "Removendo popup de assinatura..."
-
-JS_FILE="/usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js"
-if [ -f "$JS_FILE" ]; then
-    cp "$JS_FILE" "${JS_FILE}.bak"
-    sed -Ei "s/res === null \|\| res === undefined \|\| \!res || res.data.status.toLowerCase\(\) !== 'active'/false/g" "$JS_FILE" 2>/dev/null || true
-    log "Popup de assinatura removido"
-fi
-
-# -----------------------------------------------------------------------------
-# 3. Atualizar sistema
+# 2. Atualizar sistema
 # -----------------------------------------------------------------------------
 info "Atualizando sistema (pode levar alguns minutos)..."
 apt-get update -y >/dev/null 2>&1
@@ -69,7 +58,7 @@ apt-get dist-upgrade -y >/dev/null 2>&1
 log "Sistema atualizado"
 
 # -----------------------------------------------------------------------------
-# 4. Instalar pacotes úteis
+# 3. Instalar pacotes úteis
 # -----------------------------------------------------------------------------
 info "Instalando pacotes essenciais..."
 apt-get install -y \
@@ -93,7 +82,7 @@ apt-get install -y \
 log "Pacotes essenciais instalados"
 
 # -----------------------------------------------------------------------------
-# 5. Habilitar IOMMU (necessário para PCI passthrough)
+# 4. Habilitar IOMMU (necessário para PCI passthrough)
 # -----------------------------------------------------------------------------
 info "Configurando IOMMU..."
 
@@ -112,7 +101,7 @@ done
 log "Módulos VFIO configurados"
 
 # -----------------------------------------------------------------------------
-# 6. Configurar NTP (sincronização de tempo)
+# 5. Configurar NTP (sincronização de tempo)
 # -----------------------------------------------------------------------------
 info "Configurando NTP..."
 timedatectl set-ntp true
@@ -120,14 +109,14 @@ timedatectl set-timezone America/Sao_Paulo
 log "NTP configurado (America/Sao_Paulo)"
 
 # -----------------------------------------------------------------------------
-# 7. Configurar email para alertas (postfix relay)
+# 6. Configurar email para alertas (postfix relay)
 # -----------------------------------------------------------------------------
 info "Preparando sistema de alertas por email..."
 apt-get install -y libsasl2-modules mailutils >/dev/null 2>&1 || true
 log "Pacotes de email instalados (configurar SMTP relay manualmente)"
 
 # -----------------------------------------------------------------------------
-# 8. Otimizações de performance
+# 7. Otimizações de performance
 # -----------------------------------------------------------------------------
 info "Aplicando otimizações..."
 
@@ -164,21 +153,21 @@ sysctl --system >/dev/null 2>&1
 log "Otimizações de rede aplicadas"
 
 # -----------------------------------------------------------------------------
-# 9. Configurar SMART monitoring para SSD
+# 8. Configurar SMART monitoring para SSD
 # -----------------------------------------------------------------------------
 info "Configurando monitoramento SMART do SSD..."
 systemctl enable smartd >/dev/null 2>&1 || true
 log "SMART monitoring habilitado"
 
 # -----------------------------------------------------------------------------
-# 10. Configurar lm-sensors
+# 9. Configurar lm-sensors
 # -----------------------------------------------------------------------------
 info "Detectando sensores de temperatura..."
 sensors-detect --auto >/dev/null 2>&1 || true
 log "Sensores configurados"
 
 # -----------------------------------------------------------------------------
-# 11. Criar script de health-check automático
+# 10. Criar script de health-check automático
 # -----------------------------------------------------------------------------
 info "Configurando health-check automático..."
 cat > /usr/local/bin/grom-health-check.sh << 'HEALTHEOF'
@@ -186,7 +175,7 @@ cat > /usr/local/bin/grom-health-check.sh << 'HEALTHEOF'
 # GROM SERVER - Health Check Automático
 # Executado via cron a cada 6 horas
 
-ALERT_EMAIL="${GROM_ALERT_EMAIL:-root}"
+ALERT_EMAIL="${GROM_ALERT_EMAIL:-grom.servidor@gmail.com}"
 HOSTNAME=$(hostname)
 PROBLEMS=0
 REPORT=""
@@ -238,7 +227,7 @@ chmod +x /usr/local/bin/grom-health-check.sh
 log "Health-check automático configurado (a cada 6h)"
 
 # -----------------------------------------------------------------------------
-# 12. Auto-start de VMs e Containers na boot
+# 11. Auto-start de VMs e Containers na boot
 # -----------------------------------------------------------------------------
 info "Configurando auto-start..."
 # O Proxmox já suporta isso nativamente via opção --onboot

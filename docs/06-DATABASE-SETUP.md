@@ -1,10 +1,10 @@
 # 🗄️ Configuração do Banco de Dados MySQL
 
-## Container LXC: CT101 - MySQL Server
+## Container LXC: CT111 - MySQL Server
 
 | Parâmetro | Valor |
 |---|---|
-| **ID** | 101 |
+| **ID** | 111 |
 | **Hostname** | grom-db |
 | **SO** | Ubuntu 24.04 LTS |
 | **RAM** | 3GB |
@@ -41,21 +41,27 @@ mysql_secure_installation
 
 ```sql
 -- Criar bancos
+CREATE DATABASE grom_seg CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE DATABASE grom_web CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE DATABASE grom_documental CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- Usuário para Grom_web (acesso apenas do web server)
-CREATE USER 'grom_web_user'@'10.0.1.10' IDENTIFIED BY '<SENHA_FORTE>';
+-- Usuario principal para Grom.Seg
+CREATE USER 'grom_seg_user'@'10.0.1.10' IDENTIFIED BY '<SENHA_FORTE>' REQUIRE SSL;
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP, REFERENCES
+  ON grom_seg.* TO 'grom_seg_user'@'10.0.1.10';
+
+-- Usuário para Grom_web legado (acesso apenas do web server)
+CREATE USER 'grom_web_user'@'10.0.1.10' IDENTIFIED BY '<SENHA_FORTE>' REQUIRE SSL;
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP
   ON grom_web.* TO 'grom_web_user'@'10.0.1.10';
 
 -- Usuário para Grom Documental
-CREATE USER 'grom_doc_user'@'10.0.1.10' IDENTIFIED BY '<SENHA_FORTE>';
+CREATE USER 'grom_doc_user'@'10.0.1.10' IDENTIFIED BY '<SENHA_FORTE>' REQUIRE SSL;
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP
   ON grom_documental.* TO 'grom_doc_user'@'10.0.1.10';
 
 -- Usuário de backup (somente leitura + LOCK)
-CREATE USER 'grom_backup'@'10.0.1.12' IDENTIFIED BY '<SENHA_FORTE>';
+CREATE USER 'grom_backup'@'10.0.1.12' IDENTIFIED BY '<SENHA_FORTE>' REQUIRE SSL;
 GRANT SELECT, LOCK TABLES, SHOW VIEW, EVENT, TRIGGER, RELOAD
   ON *.* TO 'grom_backup'@'10.0.1.12';
 
@@ -94,6 +100,7 @@ max_heap_table_size = 64M
 # Segurança
 local_infile = 0
 symbolic-links = 0
+require_secure_transport = ON
 sql_mode = STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
 
 # Logs

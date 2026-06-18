@@ -1,0 +1,14 @@
+# GROM SERVER - Plano de registros DNS no Registro.br
+# Substituir IP_PUBLICO pelo IP real confirmado no dia da implantacao.
+# Nao publicar monitor.grom.seg.br.
+
+grom.seg.br.        A      IP_PUBLICO    # Grom.Seg principal
+web.grom.seg.br.    A      IP_PUBLICO    # legado/transicao
+docs.grom.seg.br.   A      IP_PUBLICO    # legado/transicao
+vpn.grom.seg.br.    A      IP_PUBLICO    # WireGuard
+
+# Opcional somente se houver IPv6 publico e firewall IPv6 revisado:
+# grom.seg.br.        AAAA   IPV6_PUBLICO
+# web.grom.seg.br.    AAAA   IPV6_PUBLICO
+# docs.grom.seg.br.   AAAA   IPV6_PUBLICO
+# vpn.grom.seg.br.    AAAA   IPV6_PUBLICO

@@ -10,9 +10,9 @@ Address = 10.0.10.1/24
 ListenPort = 51820
 PrivateKey = <SERVER_PRIVATE_KEY>
 
-# Regras de firewall automáticas (PostUp/PostDown)
-PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+# Regras de firewall automaticas (PostUp/PostDown)
+PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; /bin/sh -c 'echo "[$(date)] WireGuard UP" >> /var/log/wireguard.log'
+PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE; /bin/sh -c 'echo "[$(date)] WireGuard DOWN" >> /var/log/wireguard.log'
 
 # --- Clientes ---
 
