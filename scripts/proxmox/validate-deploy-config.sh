@@ -113,7 +113,13 @@ check_file_mode() {
     mode=$(stat -c '%a' "$file" 2>/dev/null || echo "unknown")
     case "$mode" in
         600|640|400|440) ok "Permissao restrita em ${file} (${mode})" ;;
-        *) warn "Permissao de ${file} deveria ser 600 ou 640; atual: ${mode}" ;;
+        *)
+            if [ "${GROM_LAB_MODE:-}" = "true" ] && printf '%s' "$file" | grep -q '/\.lab/'; then
+                ok "Permissao aceita para env de laboratorio em filesystem local (${mode})"
+                return
+            fi
+            warn "Permissao de ${file} deveria ser 600 ou 640; atual: ${mode}"
+            ;;
     esac
 }
 

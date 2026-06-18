@@ -1,5 +1,12 @@
 # Changelog - Grom Server
 
+## [1.1.2] - 2026-06-18
+
+### Desenvolvimento seguro
+- Adicionado fluxo de laboratorio em `scripts/lab/run-safe-lab-checks.sh` e `.ps1` para validar o repositorio sem tocar Proxmox, `/etc`, rede, containers ou servicos reais.
+- Adicionado ambiente ficticio `.lab/grom.env` gerado localmente, com segredos falsos fortes e dominio `.invalid`.
+- Formalizado o amadurecimento em unidade separada antes de qualquer implantacao definitiva.
+
 ## [1.1.1] - 2026-06-17
 
 ### Confiabilidade operacional

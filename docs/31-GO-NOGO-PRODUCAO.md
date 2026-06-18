@@ -10,7 +10,7 @@ Status recomendado ate validacao no hardware final:
 
 ```text
 NO-GO para producao plena
-GO apenas para homologacao, implantacao controlada e testes sem dados reais
+GO apenas para laboratorio, homologacao controlada e testes sem dados reais
 ```
 
 Motivos:
@@ -20,6 +20,23 @@ Motivos:
 - Exposicao publica precisa ser testada a partir de internet externa.
 - Alertas reais precisam ser recebidos.
 - Grom_SigePol e Grom_Security precisam de planos de deploy separados e versionados.
+- A fase atual e desenvolvimento seguro em unidade separada, conforme `docs/32-DESENVOLVIMENTO-SEGURO-LAB.md`.
+
+## Gate de laboratorio
+
+Antes de qualquer pacote candidato, executar:
+
+```bash
+bash scripts/lab/run-safe-lab-checks.sh --build-release
+```
+
+No Windows:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/lab/run-safe-lab-checks.ps1 -BuildRelease
+```
+
+Esse gate nao substitui a validacao no Proxmox. Ele existe para impedir que o projeto avance para hardware definitivo antes de passar por auditoria, validacao pre-deploy com variaveis ficticias fortes e geracao de release limpa.
 
 ## Percentual de maturidade
 

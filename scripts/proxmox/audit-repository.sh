@@ -65,6 +65,7 @@ check_no_secret_values() {
     raw=$(
         grep -RInE \
             --exclude-dir=.git \
+            --exclude-dir=.lab \
             --exclude-dir=downloads \
             --exclude-dir=dist \
             --exclude='*.png' \

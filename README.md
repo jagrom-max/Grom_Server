@@ -18,7 +18,20 @@ O **Grom Server** é um projeto de servidor caseiro profissional, projetado para
 > `docs/24-TRANSICAO-GROM-SEG.md`, `docs/25-DNS-REGISTRO-BR.md`
 > `docs/26-HOME-ASSISTANT-GROM-SECURITY.md`, `docs/27-GROM-SECURITY-IMPLANTACAO.md`
 > `docs/28-CAMERAS-DVR-VIDEO.md`, `docs/29-GROM-SECURITY-REGRAS.md`
-> `docs/30-COMUNICACAO-OFICIAL.md` e `docs/31-GO-NOGO-PRODUCAO.md`.
+> `docs/30-COMUNICACAO-OFICIAL.md`, `docs/31-GO-NOGO-PRODUCAO.md`
+> e `docs/32-DESENVOLVIMENTO-SEGURO-LAB.md`.
+
+### Fase atual: laboratorio seguro
+
+O projeto deve amadurecer em unidade separada antes de qualquer implantacao definitiva no mini PC e na rede real.
+
+Use o fluxo seguro:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/lab/run-safe-lab-checks.ps1 -BuildRelease
+```
+
+Esse fluxo valida auditoria, variaveis ficticias e pacote de release sem executar `deploy-all.sh`, sem tocar Proxmox, sem escrever em `/etc` e sem usar dominio ou segredos reais.
 
 ### Subprojeto Grom_Security
 
