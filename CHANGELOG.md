@@ -1,5 +1,16 @@
 # Changelog - Grom Server
 
+## [1.1.3] - 2026-06-18
+
+### Dashboard e preparo local
+- Atualizado dashboard operacional para modo visualizacao em tela unica, com cursor oculto em desktop e atualizacao automatica.
+- Integrada identidade visual Grom na sidebar, com logo versionada em `apps/grom-seg/public/server/assets/`.
+- Endurecido carregamento do dashboard com timeout, fallback seguro e bloqueio de requisicoes concorrentes.
+- Adicionado `scripts/lab/preview-dashboard.ps1` para visualizar o painel por HTTP local sem depender do preview do editor.
+- Adicionado `scripts/lab/prepare-local-release.ps1` para validar laboratorio, preview e gerar pacote candidato local.
+- Auditoria local passou a exigir os assets do dashboard antes de liberar pacote.
+- Adicionado `scripts/proxmox/final-local-deploy.sh` como orquestrador do host definitivo, reunindo auditoria, pre-deploy, baseline, deploy, pos-deploy, healthcheck e Go/No-Go.
+
 ## [1.1.2] - 2026-06-18
 
 ### Desenvolvimento seguro

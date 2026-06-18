@@ -10,14 +10,16 @@
   <div class="shell">
     <aside class="sidebar" aria-label="Navegacao principal">
       <div class="brand">
-        <div class="brand-mark" aria-hidden="true">G</div>
-        <div>
-          <strong>Grom</strong>
-          <span>Server</span>
+        <div class="brand-mark" aria-hidden="true">
+          <img src="./assets/logo_grom_menu.png" alt="">
+        </div>
+        <div class="brand-title">
+          <strong>Grom Server</strong>
+          <span>Monitoramento</span>
         </div>
       </div>
 
-      <nav>
+      <nav aria-label="Secoes exibidas">
         <a class="active" href="#resumo">Resumo</a>
         <a href="#recursos">Recursos</a>
         <a href="#servicos">Servicos</a>
@@ -38,8 +40,8 @@
           <h1>Monitoramento do Grom Server</h1>
         </div>
         <div class="top-actions">
-          <span id="updated-at">Atualizando...</span>
-          <button id="refresh" type="button" title="Atualizar agora">Atualizar</button>
+          <span id="updated-at" aria-live="polite">Atualizando...</span>
+          <span class="auto-refresh">Auto 60s</span>
         </div>
       </header>
 
@@ -52,17 +54,17 @@
         <article class="status-card">
           <span class="label">Falhas</span>
           <strong id="fail-count">0</strong>
-          <p>Itens que exigem correcao antes de producao.</p>
+          <p>Correcao antes de producao.</p>
         </article>
         <article class="status-card">
           <span class="label">Avisos</span>
           <strong id="warn-count">0</strong>
-          <p>Pontos que devem ser revisados e aceitos.</p>
+          <p>Revisar e aceitar.</p>
         </article>
         <article class="status-card">
           <span class="label">Sistemas</span>
           <strong id="service-count">0/0</strong>
-          <p>VMs, containers e servicos principais.</p>
+          <p>VMs, containers e servicos.</p>
         </article>
       </section>
 
@@ -106,7 +108,7 @@
         </div>
       </section>
 
-      <section id="servicos" class="panel">
+      <section id="servicos" class="panel services-panel">
         <div class="section-title">
           <div>
             <p class="eyebrow">Disponibilidade</p>
@@ -116,8 +118,8 @@
         <div class="service-list" id="services"></div>
       </section>
 
-      <section id="backups" class="split">
-        <article class="panel">
+      <section class="split">
+        <article id="backups" class="panel">
           <div class="section-title">
             <div>
               <p class="eyebrow">Continuidade</p>

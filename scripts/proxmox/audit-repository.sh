@@ -158,10 +158,13 @@ require_dir "docs"
 for path in \
     "scripts/deploy-all.sh" \
     "scripts/build-release.sh" \
+    "scripts/lab/run-safe-lab-checks.ps1" \
+    "scripts/lab/preview-dashboard.ps1" \
     "scripts/proxmox/audit-repository.sh" \
     "scripts/proxmox/capacity-baseline.sh" \
     "scripts/proxmox/operational-health-check.sh" \
     "scripts/proxmox/production-readiness-check.sh" \
+    "scripts/proxmox/final-local-deploy.sh" \
     "scripts/proxmox/restore-drill.sh" \
     "scripts/proxmox/verify-host-readiness.sh" \
     "scripts/proxmox/validate-deploy-config.sh" \
@@ -178,6 +181,8 @@ for path in \
     "apps/grom-seg/public/server/styles.css" \
     "apps/grom-seg/public/server/app.js" \
     "apps/grom-seg/public/server/data/status.json" \
+    "apps/grom-seg/public/server/assets/logo_grom.png" \
+    "apps/grom-seg/public/server/assets/logo_grom_menu.png" \
     "docs/19-RUNBOOK-PRIMEIRA-IMPLANTACAO.md" \
     "docs/22-VALIDACAO-POS-DEPLOY.md" \
     "docs/31-GO-NOGO-PRODUCAO.md"; do

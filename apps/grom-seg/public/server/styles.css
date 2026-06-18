@@ -19,54 +19,71 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   color: var(--ink);
   background: var(--paper);
+  cursor: none;
+  overflow: hidden;
 }
 
 .shell {
-  min-height: 100vh;
+  height: 100vh;
+  height: 100svh;
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 240px 1fr;
 }
 
 .sidebar {
   background: #101a28;
   color: #fff;
-  padding: 24px 18px;
+  padding: 14px 18px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 14px;
 }
 
 .brand {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  text-align: center;
 }
 
 .brand-mark {
-  width: 44px;
-  height: 44px;
+  width: 100%;
+  height: 228px;
   display: grid;
   place-items: center;
-  background: var(--blue);
-  color: #fff;
-  font-weight: 800;
-  font-size: 24px;
-  border-radius: 6px;
-  box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .12);
+  background: var(--panel);
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .2);
+  overflow: hidden;
+  padding: 0;
 }
 
-.brand strong { display: block; font-size: 18px; }
-.brand span { color: #aab7c6; font-size: 13px; }
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.brand-title {
+  width: 100%;
+  padding-bottom: 2px;
+}
+
+.brand strong { display: block; font-size: 20px; line-height: 1.1; }
+.brand span { color: #aab7c6; font-size: 12px; text-transform: uppercase; }
 
 nav {
   display: grid;
-  gap: 6px;
+  gap: 5px;
 }
 
 nav a {
   color: #c9d4e0;
   text-decoration: none;
-  padding: 11px 12px;
+  padding: 9px 12px;
   border-radius: 6px;
   font-size: 14px;
 }
@@ -80,7 +97,7 @@ nav a:hover {
 .sidebar-status {
   margin-top: auto;
   border-top: 1px solid rgba(255,255,255,.12);
-  padding-top: 16px;
+  padding-top: 12px;
   color: #c9d4e0;
   display: flex;
   align-items: center;
@@ -99,9 +116,11 @@ nav a:hover {
 .dot.fail { background: var(--red); }
 
 main {
-  padding: 28px;
+  min-height: 0;
+  padding: 18px;
   display: grid;
-  gap: 22px;
+  grid-template-rows: 48px 104px 118px minmax(136px, 1fr) 142px;
+  gap: 12px;
 }
 
 .topbar {
@@ -109,12 +128,13 @@ main {
   align-items: end;
   justify-content: space-between;
   gap: 18px;
+  min-width: 0;
 }
 
 .eyebrow {
-  margin: 0 0 5px;
+  margin: 0 0 4px;
   color: var(--blue-dark);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0;
@@ -126,15 +146,25 @@ h1, h2 {
   letter-spacing: 0;
 }
 
-h1 { font-size: 28px; }
-h2 { font-size: 18px; }
+h1 { font-size: 26px; }
+h2 { font-size: 17px; }
 
 .top-actions {
   display: flex;
   align-items: center;
   gap: 10px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.auto-refresh {
+  border: 1px solid rgba(47, 142, 219, .28);
+  background: rgba(47, 142, 219, .1);
+  color: var(--blue-dark);
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-weight: 700;
 }
 
 button {
@@ -147,10 +177,16 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  cursor: progress;
+  opacity: .68;
+}
+
 .summary-grid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 16px;
+  gap: 12px;
+  min-height: 0;
 }
 
 .status-card,
@@ -159,10 +195,12 @@ button {
   border: 1px solid var(--line);
   border-radius: 8px;
   box-shadow: var(--shadow);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .status-card {
-  padding: 18px;
+  padding: 14px;
 }
 
 .status-card.primary {
@@ -172,24 +210,25 @@ button {
 .label {
   display: block;
   color: var(--muted);
-  font-size: 13px;
-  margin-bottom: 8px;
+  font-size: 12px;
+  margin-bottom: 7px;
 }
 
 .status-card strong {
   display: block;
-  font-size: 28px;
+  font-size: 27px;
   line-height: 1;
 }
 
 .status-card p {
-  margin: 10px 0 0;
+  margin: 8px 0 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
+  line-height: 1.25;
 }
 
 .panel {
-  padding: 20px;
+  padding: 15px;
 }
 
 .section-title {
@@ -197,19 +236,19 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .metric-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .metric {
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 14px;
+  padding: 12px;
   background: #fbfcfe;
 }
 
@@ -226,10 +265,10 @@ button {
 }
 
 .bar {
-  height: 10px;
+  height: 9px;
   background: #e8edf3;
   border-radius: 999px;
-  margin-top: 12px;
+  margin-top: 10px;
   overflow: hidden;
 }
 
@@ -245,24 +284,25 @@ button {
 
 .service-list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .service {
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 13px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  padding: 10px;
+  display: grid;
+  align-content: space-between;
+  gap: 8px;
   background: #fbfcfe;
+  min-width: 0;
+  min-height: 82px;
 }
 
-.service strong { display: block; }
+.service strong { display: block; overflow-wrap: anywhere; font-size: 14px; }
 .service span { color: var(--muted); font-size: 12px; }
-.pill { font-size: 12px; font-weight: 700; padding: 5px 8px; border-radius: 999px; }
+.pill { justify-self: start; font-size: 11px; font-weight: 700; padding: 5px 8px; border-radius: 999px; font-style: normal; }
 .pill.ok { color: #0f6844; background: #dff4ea; }
 .pill.warn { color: #7a4b00; background: #fff1cf; }
 .pill.fail { color: #9f1d1d; background: #ffe1e1; }
@@ -270,37 +310,115 @@ button {
 .split {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 12px;
+  min-height: 0;
 }
 
 .facts {
   display: grid;
-  gap: 10px;
+  gap: 7px;
 }
 
 .facts div {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: 14px;
   border-bottom: 1px solid var(--line);
-  padding: 9px 0;
+  padding: 7px 0;
+  font-size: 13px;
 }
 
 .facts div:last-child { border-bottom: 0; }
 .facts span { color: var(--muted); }
+.facts strong { text-align: right; overflow-wrap: anywhere; }
+
+.split .facts {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--line);
+}
+
+.split .facts div {
+  display: grid;
+  align-content: start;
+  border-bottom: 0;
+  border-right: 1px solid var(--line);
+  padding: 10px 12px 4px;
+  min-height: 58px;
+}
+
+.split .facts div:last-child {
+  border-right: 0;
+}
+
+.split .facts strong {
+  text-align: left;
+}
+
+@media (max-height: 700px) and (min-width: 981px) {
+  .shell { grid-template-columns: 224px 1fr; }
+  .sidebar { padding: 10px 16px; gap: 10px; }
+  .brand-mark { height: 198px; }
+  .brand strong { font-size: 18px; }
+  nav { gap: 4px; }
+  nav a { padding: 7px 10px; }
+  .sidebar-status { padding-top: 10px; }
+  main {
+    padding: 14px;
+    grid-template-rows: 44px 96px 104px 132px minmax(122px, 1fr);
+    gap: 10px;
+  }
+  h1 { font-size: 24px; }
+  .panel { padding: 13px; }
+  .status-card { padding: 12px; }
+  .status-card strong { font-size: 25px; }
+  .status-card p { font-size: 11px; }
+  .metric { padding: 10px; }
+  .service { min-height: 70px; padding: 8px 9px; }
+  .facts div { padding: 6px 0; }
+  .split .facts div { padding: 8px 10px 4px; min-height: 50px; }
+}
 
 @media (max-width: 980px) {
-  .shell { grid-template-columns: 1fr; }
+  body {
+    cursor: auto;
+    overflow: auto;
+  }
+
+  .shell {
+    height: auto;
+    min-height: 100vh;
+    grid-template-columns: 1fr;
+  }
+
   .sidebar { position: static; }
   nav { grid-template-columns: repeat(5, 1fr); }
+
+  main {
+    grid-template-rows: auto;
+    padding: 18px;
+  }
+
   .summary-grid,
   .metric-grid,
   .service-list,
   .split { grid-template-columns: 1fr 1fr; }
+
+  .split .facts {
+    grid-template-columns: 1fr;
+    border-top: 0;
+  }
+
+  .split .facts div {
+    display: flex;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    min-height: 0;
+    padding: 7px 0;
+  }
 }
 
 @media (max-width: 640px) {
-  main { padding: 18px; }
   .topbar { align-items: start; flex-direction: column; }
   nav,
   .summary-grid,

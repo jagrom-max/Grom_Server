@@ -23,7 +23,9 @@ Este checklist organiza o que deve ficar pronto antes da instalacao fisica do Gr
 - Baixar ISOs e pacotes necessarios quando possivel.
 - Gerar `downloads/manifest.json` com `scripts/downloads/prepare-offline-kit.ps1`.
 - Gerar pacote de release com `bash scripts/build-release.sh`.
+- No Windows de desenvolvimento, preferir `powershell -ExecutionPolicy Bypass -File scripts/lab/prepare-local-release.ps1` para validar laboratorio, dashboard e release em uma unica rotina.
 - Conferir `dist/grom-scripts.zip.sha256` ou `dist/grom-scripts.tar.gz.sha256`, conforme o formato gerado.
+- No Proxmox final, executar primeiro `bash /root/grom-scripts/scripts/proxmox/final-local-deploy.sh --skip-deploy`.
 - Definir politica de retencao de documentos e logs.
 - Definir responsavel LGPD/seguranca e contato de incidente.
 - Confirmar que a Fase 1 usara o switch atual apenas como LAN restrita, sem VLAN.
@@ -43,6 +45,7 @@ Este checklist organiza o que deve ficar pronto antes da instalacao fisica do Gr
 - OPNsense como unico caminho entre WAN e LAN.
 - VM100 OPNsense ativa antes dos containers.
 - CT110 web, CT111 banco, CT112 backup, CT113 monitoramento, CT114 VPN.
+- Dashboard `https://grom.seg.br/server/` publicado com logo e dados de `status.json`, acessivel apenas por LAN/VPN.
 - Proxmox e OPNsense acessiveis apenas por LAN/VPN.
 - VM120 Home Assistant OS planejada em `10.0.1.20`.
 - VM130 Grom_Security planejada em `10.0.1.30`.
@@ -68,7 +71,7 @@ export GROM_DOC_PASS='guardar-no-cofre'
 export GROM_BACKUP_PASS='guardar-no-cofre'
 export BORG_PASSPHRASE='guardar-no-cofre'
 
-bash /root/grom-scripts/deploy-all.sh
+bash /root/grom-scripts/scripts/proxmox/final-local-deploy.sh --confirm-final-deploy --public-target=grom.seg.br
 ```
 
 Nao registrar esses valores em terminal compartilhado, print, documento sem criptografia ou repositorio.

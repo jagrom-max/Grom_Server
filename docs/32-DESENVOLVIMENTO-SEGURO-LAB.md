@@ -27,6 +27,24 @@ Para tambem gerar pacote de release local:
 powershell -ExecutionPolicy Bypass -File scripts/lab/run-safe-lab-checks.ps1 -BuildRelease
 ```
 
+Para preparar um pacote candidato completo, com preview local do dashboard e release:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/lab/prepare-local-release.ps1
+```
+
+Para abrir apenas o dashboard operacional em preview HTTP local:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/lab/preview-dashboard.ps1
+```
+
+URL padrao:
+
+```text
+http://127.0.0.1:8090/server/
+```
+
 Em Linux/Git Bash:
 
 ```bash
@@ -54,6 +72,7 @@ O script de laboratorio:
 - executa `scripts/lab/simulate-deploy-plan.sh` para gerar o plano seguro que seria seguido no Proxmox definitivo;
 - opcionalmente executa `scripts/build-release.sh`;
 - grava relatorios em `.lab/reports/`.
+- mantem o dashboard e seus assets dentro de `apps/grom-seg/public/server/`, garantindo que o pacote de deploy leve logo, CSS, JS e `status.json`.
 
 Ele nao executa:
 
@@ -104,6 +123,8 @@ O pacote candidato so deve ser considerado se:
 - release for gerado com manifesto e checksum;
 - `git diff --check` nao apontar problemas;
 - nao houver segredos reais em arquivos rastreados.
+- o dashboard local responder via `scripts/lab/preview-dashboard.ps1`.
+- o orquestrador `scripts/proxmox/final-local-deploy.sh` estiver presente no pacote.
 
 ## Escada de maturidade
 
@@ -114,6 +135,18 @@ O pacote candidato so deve ser considerado se:
 | L2 | Proxmox de homologacao | Testar containers/VMs com dados ficticios | LAN isolada |
 | L3 | Hardware final em janela controlada | Validar host, rede, backup e restore | Sem dados reais |
 | L4 | Producao controlada | Uso real com monitoramento e rollback | Somente apos Go/No-Go |
+
+No L3, o primeiro comando no host final deve ser:
+
+```bash
+bash /root/grom-scripts/scripts/proxmox/final-local-deploy.sh --skip-deploy
+```
+
+Somente apos revisar o ensaio e confirmar janela:
+
+```bash
+bash /root/grom-scripts/scripts/proxmox/final-local-deploy.sh --confirm-final-deploy --public-target=grom.seg.br
+```
 
 ## Promocao para implantacao definitiva
 

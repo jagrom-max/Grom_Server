@@ -179,12 +179,14 @@ else
 fi
 
 for path in \
+    "scripts/deploy-all.sh" \
     "scripts/build-release.sh" \
     "scripts/proxmox/capacity-baseline.sh" \
     "scripts/proxmox/create-containers.sh" \
     "scripts/proxmox/operational-health-check.sh" \
     "scripts/proxmox/post-install.sh" \
     "scripts/proxmox/audit-repository.sh" \
+    "scripts/proxmox/final-local-deploy.sh" \
     "scripts/proxmox/production-readiness-check.sh" \
     "scripts/proxmox/restore-drill.sh" \
     "scripts/database/setup-mysql.sh" \

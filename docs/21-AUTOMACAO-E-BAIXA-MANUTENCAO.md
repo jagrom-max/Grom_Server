@@ -41,7 +41,8 @@ flowchart TD
 | Deploy | Valida variaveis, pacote e estrutura | `scripts/proxmox/validate-deploy-config.sh` |
 | Pos-deploy | Valida VM/CT, servicos, backup e exposicao publica | `scripts/proxmox/post-deploy-validation.sh` |
 | Relatorio mensal | Resume host, VM/CT, servicos, backup, logs e checklist | `scripts/proxmox/monthly-operational-report.sh` |
-| Orquestracao | Executa instalacao principal | `scripts/deploy-all.sh` |
+| Orquestracao | Executa gates, deploy, pos-validacao e Go/No-Go | `scripts/proxmox/final-local-deploy.sh` |
+| Instalacao principal | Implanta VMs/containers e servicos quando chamado pelo orquestrador | `scripts/deploy-all.sh` |
 | Proxmox | Pos-instalacao e backup VM/LXC | `post-install.sh`, `backup-containers.sh` |
 | Containers | Criacao CT110-CT114 | `create-containers.sh` |
 | Web | Nginx, PHP, Python e SSL | `scripts/webserver/*` |
@@ -66,7 +67,7 @@ Se qualquer validacao falhar, corrigir antes de rodar o orquestrador.
 
 ```bash
 cd /root/grom-scripts
-bash deploy-all.sh
+bash /root/grom-scripts/scripts/proxmox/final-local-deploy.sh --confirm-final-deploy --public-target=grom.seg.br
 ```
 
 O `deploy-all.sh` tambem executa `validate-deploy-config.sh --strict` no inicio. Isso reduz risco de instalacao parcial com senhas faltando, pacote incompleto ou variaveis erradas.

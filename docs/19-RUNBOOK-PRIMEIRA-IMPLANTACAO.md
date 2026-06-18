@@ -211,7 +211,7 @@ Executar:
 
 ```bash
 cd /root/grom-scripts
-bash deploy-all.sh
+bash /root/grom-scripts/scripts/proxmox/final-local-deploy.sh --confirm-final-deploy --public-target=grom.seg.br
 ```
 
 Registrar:
