@@ -158,6 +158,7 @@ require_dir "docs"
 for path in \
     "scripts/deploy-all.sh" \
     "scripts/build-release.sh" \
+    "scripts/lab/create-install-media.ps1" \
     "scripts/lab/export-release-usb.ps1" \
     "scripts/lab/run-safe-lab-checks.ps1" \
     "scripts/lab/preview-dashboard.ps1" \
@@ -188,6 +189,7 @@ for path in \
     "docs/22-VALIDACAO-POS-DEPLOY.md" \
     "docs/33-IMPLANTACAO-DEFINITIVA-EQUIPAMENTO.md" \
     "docs/34-IMPLANTACAO-EM-BANCADA.md" \
+    "docs/35-MIDIA-INSTALACAO-COMPLETA.md" \
     "docs/31-GO-NOGO-PRODUCAO.md"; do
     require_file "$path"
 done
