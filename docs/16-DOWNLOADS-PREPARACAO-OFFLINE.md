@@ -106,7 +106,7 @@ OPNSENSE_URL="https://..." bash scripts/downloads/prepare-offline-kit.sh
 
 ## Prontidao do host
 
-Apos instalar Proxmox no mini PC, executar:
+Apos instalar Proxmox no HP EliteDesk, executar:
 
 ```bash
 bash scripts/proxmox/verify-host-readiness.sh

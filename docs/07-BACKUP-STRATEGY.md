@@ -11,41 +11,48 @@
 | **rclone crypt** | Cópia externa criptografada opcional para Google Drive |
 | **cron** | Agendamento de tarefas |
 
-## Container LXC: CT112 - Backup Server
+## Container LXC: CT112 - Orquestrador de backup inicial
 
 | Parâmetro | Valor |
 |---|---|
 | **ID** | 112 |
 | **Hostname** | grom-backup |
 | **SO** | Ubuntu 24.04 LTS |
-| **RAM** | 1GB |
+| **RAM** | 512MB |
 | **vCPU** | 1 |
-| **Disco** | 50GB |
+| **Disco** | 16GB |
 | **IP** | 10.0.1.12/24 |
 
 ---
 
-## Estratégia 3-2-1
+## Estratégia 3-2-1 e fase provisoria
 
-- **3** cópias dos dados (produção + backup local + HD externo)
+- **3** cópias dos dados (produção + unidade USB + servidor de backup/offsite)
 - **2** mídias diferentes (SSD + HD externo USB)
-- **1** cópia offsite (HD externo rotacionável)
+- **1** cópia fora do HP EliteDesk
 
-## Separacao com segundo HD externo opcional
+Enquanto a segunda maquina ainda nao estiver disponivel, a unidade USB de 1 TB
+e a camada local obrigatoria. Essa fase e provisoria e nao deve ser considerada
+3-2-1 completa sem copia offline/offsite testada.
 
-Se houver um segundo HD de 1 TB, usar como complemento, sem substituir o HD principal.
+## Unidade USB atual e servidor futuro
+
+O projeto conta inicialmente com uma unidade USB de 1 TB. A evolucao prevista
+e uma segunda maquina para backup e Home Assistant. Um segundo HD removivel
+continua opcional como copia offline.
 
 | Midia | Montagem | Papel recomendado |
 |---|---|---|
 | SSD interno | Proxmox/local-lvm | Sistema, VMs/CTs, dados recentes e cache operacional |
-| HD externo A | `/mnt/backup-external` -> CT112 `/mnt/external` | Backup operacional diario, Proxmox `vzdump`, Borg e dumps |
-| HD externo B opcional | `/mnt/backup-external-2` -> CT112 `/mnt/external2` | Segunda copia local, rotacao offline e evidencias importantes |
+| Unidade USB 1 TB | `/mnt/backup-external` -> CT112 `/mnt/external` | Backup operacional diario, Proxmox `vzdump`, Borg e dumps |
+| Servidor futuro | Rede restrita, destino a definir | Replica fisicamente separada e Home Assistant |
+| HD externo B opcional | `/mnt/backup-external-2` -> CT112 `/mnt/external2` | Rotacao offline e evidencias importantes |
 | Google Drive/rclone crypt | remoto criptografado | Copia externa opcional, nunca backup principal |
 
 Politica recomendada:
-- HD A pode ficar conectado para backups automaticos.
+- A unidade USB de 1 TB pode ficar conectada para backups automaticos.
 - HD B deve ficar desconectado/offline sempre que possivel, conectado apenas para sincronizacao, teste de restore ou guarda de evidencia.
-- Se ambos forem de 1 TB, nao usar nenhum deles para gravacao continua de video.
+- Nao usar unidade de backup para gravacao continua de video.
 - Evidencias importantes devem ir para HD B e copia externa criptografada, quando aplicavel.
 - Nenhum HD externo deve armazenar dados sensiveis sem criptografia Borg/rclone crypt ou protecao fisica controlada.
 
@@ -99,6 +106,8 @@ echo "UUID=<UUID_HD_B> /mnt/backup-external-2 ext4 defaults,nofail 0 2" >> /etc/
 
 > O backup de arquivos dos containers nao usa SSH root. Arquivos e configuracoes dos containers sao protegidos pelo `vzdump` no Proxmox host. O CT112 fica responsavel por dumps logicos de banco e backups Borg.
 > Google Drive, se usado, recebe apenas dados criptografados via `rclone crypt`.
+> Quando o servidor de backup dedicado entrar em operacao, adicionar a replica
+> sem remover a unidade USB ate concluir teste de restore nas duas copias.
 
 ---
 

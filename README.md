@@ -19,11 +19,12 @@ O **Grom Server** é um projeto de servidor caseiro profissional, projetado para
 > `docs/26-HOME-ASSISTANT-GROM-SECURITY.md`, `docs/27-GROM-SECURITY-IMPLANTACAO.md`
 > `docs/28-CAMERAS-DVR-VIDEO.md`, `docs/29-GROM-SECURITY-REGRAS.md`
 > `docs/30-COMUNICACAO-OFICIAL.md`, `docs/31-GO-NOGO-PRODUCAO.md`
-> e `docs/32-DESENVOLVIMENTO-SEGURO-LAB.md`.
+> `docs/32-DESENVOLVIMENTO-SEGURO-LAB.md` e
+> `docs/37-INVENTARIO-EVOLUCAO-HP-ELITEDESK.md`.
 
 ### Fase atual: laboratorio seguro
 
-O projeto deve amadurecer em unidade separada antes de qualquer implantacao definitiva no mini PC e na rede real.
+O projeto deve amadurecer em unidade separada antes de qualquer implantacao definitiva no HP EliteDesk e na rede real.
 
 Use o fluxo seguro:
 
@@ -42,14 +43,15 @@ O `Grom_Server` continua responsavel pela infraestrutura, runbooks, Proxmox, red
 ### Hardware Base
 | Componente | Especificação |
 |---|---|
-| **Mini PC** | Beelink - Intel i5-1035G7 |
-| **Processador** | Intel Core i5-1035G7 (4C/8T, 1.2-3.7GHz) |
+| **Mini PC** | HP EliteDesk 800 G4 Mini |
+| **Processador** | Intel Core i7-8700T (6C/12T) |
 | **Memória RAM** | 16GB DDR4 |
-| **Armazenamento** | 1TB SSD NVMe |
+| **Armazenamento** | SSD 500GB (substitui a unidade original de 256GB) |
 | **Rede Integrada** | 1x Ethernet Gigabit |
 | **Rede USB** | Adaptador Ugreen USB-A 3.0 para LAN RJ45 2.5G |
 | **Switch** | TP-Link TL-SG108 (8 portas Gigabit) |
-| **Backup Externo** | HD Externo 1TB; segundo HD 1TB opcional para copia B/offline |
+| **Backup Externo** | Unidade USB de 1TB para backup operacional |
+| **Vídeo** | Frigate/Grom_Security integrado ao DVR Intelbras iMHDX 3008 |
 
 ### Rede Atual
 | Componente | Especificação |
@@ -74,11 +76,11 @@ O `Grom_Server` continua responsavel pela infraestrutura, runbooks, Proxmox, red
                       │
 ┌─────────────────────▼───────────────────────────────────────────┐
 │              MERCUSYS AX3000 (Roteador Wi-Fi 6)                 │
-│              Port Forwarding → Mini PC                          │
+│              Port Forwarding → HP EliteDesk                     │
 └─────────────────────┬───────────────────────────────────────────┘
                       │
 ┌─────────────────────▼───────────────────────────────────────────┐
-│          BEELINK MINI PC (i5-1035G7 / 16GB / 1TB)               │
+│        HP ELITEDESK 800 G4 MINI (i7-8700T / 16GB / 500GB)       │
 │  ┌────────────────────────────────────────────────────────────┐ │
 │  │              PROXMOX VE 9.x (Hypervisor)                   │ │
 │  │  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐       │ │
@@ -135,6 +137,7 @@ Grom_Server/
 │   ├── 20-MATRIZ-RISCOS-CONTROLES.md
 │   ├── 21-AUTOMACAO-E-BAIXA-MANUTENCAO.md
 │   ├── 22-VALIDACAO-POS-DEPLOY.md
+│   ├── 37-INVENTARIO-EVOLUCAO-HP-ELITEDESK.md
 │   ├── 23-RELATORIO-OPERACIONAL-MENSAL.md
 │   ├── 24-TRANSICAO-GROM-SEG.md
 │   ├── 25-DNS-REGISTRO-BR.md
@@ -152,7 +155,7 @@ Grom_Server/
 │   │   ├── validate-deploy-config.sh  # Validação de variáveis e pacote
 │   │   ├── post-deploy-validation.sh  # Validação pós-deploy
 │   │   ├── monthly-operational-report.sh # Relatório operacional mensal
-│   │   ├── create-ha-security-vms.sh   # VMs Home Assistant e Grom_Security
+│   │   ├── create-ha-security-vms.sh   # VM Grom_Security; HA local apenas legado/explicito
 │   │   ├── deploy-grom-security.sh      # Deploy automatizado do Grom_Security
 │   │   └── backup-containers.sh       # Backup VM/LXC no Proxmox
 │   ├── downloads/                     # Preparação de downloads offline
@@ -241,17 +244,18 @@ Grom_Server/
 |---|---|---|---|---|
 | **Proxmox Host** | 2GB | - | 30GB | Sistema host |
 | **OPNsense (VM)** | 2GB | 2 | 20GB | Firewall + IDS/IPS |
-| **Web Server (LXC)** | 3GB | 3 | 100GB | Grom.Seg |
-| **MySQL (LXC)** | 2.5GB | 2 | 200GB | Banco de dados |
-| **Backup (LXC)** | 768MB | 1 | 50GB | BorgBackup + PBS |
-| **Monitoring (LXC)** | 768MB | 1 | 20GB | Netdata + Uptime Kuma |
-| **WireGuard (LXC)** | 512MB | 1 | 5GB | VPN |
-| **Home Assistant OS (VM)** | 2GB | 2 | 32GB | Automacao, Matter, Alarm Panel |
-| **Grom_Security (VM)** | 4GB | 2-4 | 160GB | Video, MQTT, OCR, eventos |
-| **Reserva** | ~1GB | - | ~403GB | Margem minima |
-| **TOTAL** | **~16GB** | **15-17** | **~597GB** | Overcommit controlado |
+| **Web Server (LXC)** | 2.5GB | 3 | 60GB | Grom.Seg |
+| **MySQL (LXC)** | 2GB | 2 | 100GB | Banco de dados |
+| **Backup (LXC)** | 512MB | 1 | 16GB | Orquestracao Borg/vzdump; dados no USB de 1TB |
+| **Monitoring (LXC)** | 512MB | 1 | 12GB | Netdata + Uptime Kuma |
+| **WireGuard (LXC)** | 384MB | 1 | 4GB | VPN |
+| **Grom_Security/Frigate (VM)** | 4GB | 4 | 100GB | Deteccao, eventos, MQTT e retencao curta |
+| **Reserva** | ~2GB | - | ~120GB | Margem para host, logs, snapshots e crescimento |
+| **TOTAL planejado** | **~14GB** | **14** | **~342GB** | Sem Home Assistant neste host |
 
-> ⚠️ **Nota**: O i5-1035G7 possui 4 cores / 8 threads. A soma de vCPUs pode exceder os cores físicos pois nem todos os containers operam em carga máxima simultaneamente (overcommit controlado).
+> ⚠️ **Nota**: o i7-8700T possui 6 cores / 12 threads. O Frigate deve usar OpenVINO na iGPU Intel quando os testes de passthrough forem aprovados. O DVR Intelbras permanece responsável pela gravação contínua; o SSD de 500GB não deve ser usado como arquivo NVR de longa retenção.
+
+O Home Assistant e o servidor de backup definitivo serão implantados em outra máquina. Até essa segunda máquina estar disponível, o CT112 coordena os backups para a unidade USB de 1TB.
 
 ---
 
@@ -261,7 +265,7 @@ Grom_Server/
 
 ### Fases (executadas automaticamente pelo orquestrador)
 1. **Fase 1** - Preparação da rede física
-2. **Fase 2** - Instalação do Proxmox VE no Mini PC
+2. **Fase 2** - Instalação do Proxmox VE no HP EliteDesk
 3. **Fase 3** - Configuração da VM OPNsense (Firewall)
 4. **Fase 4** - Criação dos containers LXC
 5. **Fase 5** - Configuração do servidor web
@@ -298,7 +302,7 @@ Grom_Server/
 | `web.grom.seg.br` | Legado/transição Grom_web | 10.0.1.10 |
 | `docs.grom.seg.br` | Legado/transição Grom Documental | 10.0.1.10 |
 | `vpn.grom.seg.br` | WireGuard VPN | 10.0.1.14 |
-| Interno/VPN apenas | Home Assistant OS | 10.0.1.20 |
+| Interno/VPN apenas | Home Assistant (máquina futura) | IP a reservar |
 | Interno/VPN apenas | Grom_Security | 10.0.1.30 |
 | Interno/VPN apenas | Netdata + Uptime Kuma | 10.0.1.13 |
 
@@ -308,7 +312,7 @@ Grom_Server/
 
 **Projeto**: Grom Server  
 **Domínio**: grom.seg.br  
-**Versão**: 1.0.0  
+**Versão**: 1.2.0
 **Data de Início**: Junho 2026  
 **Status**: Desenvolvimento ativo - Fase 1 aprovada com hardware atual
 

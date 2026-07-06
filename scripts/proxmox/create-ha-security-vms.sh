@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# GROM SERVER - Criacao das VMs Home Assistant OS e Grom_Security
+# GROM SERVER - Criacao da VM Grom_Security e HA opcional/legado
 # Executar no Proxmox host apos OPNsense/rede base.
 # =============================================================================
 
@@ -10,10 +10,11 @@ STORAGE="${GROM_VM_STORAGE:-local-lvm}"
 ISO_STORAGE="${GROM_ISO_STORAGE:-local}"
 HA_VM_ID="${HA_VM_ID:-120}"
 SEC_VM_ID="${SEC_VM_ID:-130}"
+CREATE_HA_VM="${CREATE_HA_VM:-0}"
 HA_NAME="${HA_NAME:-home-assistant}"
 SEC_NAME="${SEC_NAME:-grom-security}"
 HA_DISK_GB="${HA_DISK_GB:-32}"
-SEC_DISK_GB="${SEC_DISK_GB:-160}"
+SEC_DISK_GB="${SEC_DISK_GB:-100}"
 HA_RAM_MB="${HA_RAM_MB:-2048}"
 SEC_RAM_MB="${SEC_RAM_MB:-4096}"
 HA_CORES="${HA_CORES:-2}"
@@ -99,12 +100,17 @@ create_security_vm() {
 }
 
 require_root
-create_ha_vm
+if [ "$CREATE_HA_VM" = "1" ]; then
+    warn "CREATE_HA_VM=1: criando Home Assistant neste host por solicitacao explicita."
+    create_ha_vm
+else
+    log "Home Assistant omitido: previsto para maquina externa (CREATE_HA_VM=0)"
+fi
 create_security_vm
 
 echo ""
-echo "VMs planejadas:"
-echo "  VM${HA_VM_ID}  ${HA_NAME}       10.0.1.20 sugerido"
+echo "VM planejada no HP EliteDesk:"
 echo "  VM${SEC_VM_ID} ${SEC_NAME}      10.0.1.30 sugerido"
+echo "  Home Assistant: maquina externa futura"
 echo ""
 echo "Configurar IPs estaticos/DHCP reservations no OPNsense."

@@ -8,7 +8,7 @@
 | SSD falha total | Alta | 4 horas | 6 horas |
 | Queda de energia prolongada | Média | 15 min | 0 (se UPS) |
 | Ataque/Ransomware | Crítica | 4 horas | 6 horas |
-| Falha do Mini PC | Crítica | 1-3 dias | 6 horas |
+| Falha do HP EliteDesk | Crítica | 1-3 dias | 6 horas |
 
 *RTO = Recovery Time Objective (tempo para restaurar)
 **RPO = Recovery Point Objective (máximo de dados perdidos)
@@ -82,7 +82,7 @@ mysqlcheck --check --all-databases -u root -p
 
 ---
 
-## Procedimento 4: Falha do Mini PC
+## Procedimento 4: Falha do HP EliteDesk
 
 Se o hardware falhar completamente:
 

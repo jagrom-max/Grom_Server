@@ -10,8 +10,8 @@ O `Grom_Security` sera implantado em VM dedicada para separar video, OCR, evento
 | Hostname | `grom-security` |
 | IP | `10.0.1.30` |
 | RAM | 4 GB |
-| vCPU | 2-4 |
-| Disco | 160 GB |
+| vCPU | 4 |
+| Disco | 100 GB |
 | Sistema sugerido | Ubuntu Server LTS |
 
 ## Diretorios
@@ -95,7 +95,7 @@ Nao ativar processamento pesado antes de definir:
 - storage;
 - validacao do OpenVINO na GPU integrada Intel.
 
-Estrategia recomendada para o Beelink i5-1035G7:
+Estrategia recomendada para o HP EliteDesk 800 G4 Mini com i7-8700T:
 
 ```text
 1. OpenVINO com Intel iGPU
@@ -146,6 +146,10 @@ Mesmo com OpenVINO, iniciar com:
 - FPS reduzido;
 - snapshots/eventos curtos;
 - sem gravacao continua como padrao.
+
+O SSD interno de 500 GB e compartilhado com toda a infraestrutura. Definir
+limites de cache e retencao antes de habilitar cada camera. O DVR Intelbras
+iMHDX 3008 permanece como destino da gravacao continua.
 
 No Proxmox, passthrough de iGPU deve ser feito somente apos validar IOMMU/grupos PCI. Nao automatizar essa etapa sem teste local, pois uma configuracao incorreta pode afetar video do host ou estabilidade da VM.
 

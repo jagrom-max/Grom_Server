@@ -1,5 +1,16 @@
 # Changelog - Grom Server
 
+## [1.2.0] - 2026-07-06
+
+### Plataforma HP EliteDesk
+- Substituido o hardware alvo Beelink pelo HP EliteDesk 800 G4 Mini com Intel Core i7-8700T, 16 GB DDR4 e SSD de 500 GB.
+- Recalculados RAM, vCPU e discos virtuais para caber com margem no SSD de 500 GB.
+- Definido o DVR Intelbras iMHDX 3008 como gravador continuo principal e o Frigate/Grom_Security como camada de deteccao, eventos, snapshots e videos curtos.
+- Mantida unidade externa USB de 1 TB como backup operacional inicial.
+- Home Assistant e servidor de backup definitivo passam a ser previstos em outra maquina.
+- Atualizados os roteiros de bancada, instalacao definitiva e uso dos pendrives para o novo equipamento.
+- Adicionado `docs/37-INVENTARIO-EVOLUCAO-HP-ELITEDESK.md` como ponto de retomada, inventario de capacidade e registro das pendencias.
+
 ## [1.1.3] - 2026-06-18
 
 ### Dashboard e preparo local

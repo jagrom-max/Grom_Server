@@ -107,23 +107,23 @@ create_container() {
 }
 
 # CT110 - Web Server (Nginx + PHP + Python)
-create_container 110 "grom-web" 3072 3 100 "10.0.1.10" \
+create_container 110 "grom-web" 2560 3 60 "10.0.1.10" \
     "Servidor Web - Nginx + PHP 8.3 + Python 3.12 | Grom.Seg"
 
 # CT111 - MySQL Database
-create_container 111 "grom-db" 2560 2 200 "10.0.1.11" \
+create_container 111 "grom-db" 2048 2 100 "10.0.1.11" \
     "Banco de Dados MySQL 8.0 | grom_seg + legados"
 
 # CT112 - Backup Server
-create_container 112 "grom-backup" 768 1 50 "10.0.1.12" \
-    "Servidor de Backup - BorgBackup + rsync | HD Externo 1TB"
+create_container 112 "grom-backup" 512 1 16 "10.0.1.12" \
+    "Orquestracao de Backup - BorgBackup + rsync | Unidade USB 1TB"
 
 # CT113 - Monitoring
-create_container 113 "grom-monitor" 768 1 20 "10.0.1.13" \
+create_container 113 "grom-monitor" 512 1 12 "10.0.1.13" \
     "Monitoramento - Netdata + Uptime Kuma" "nesting=1"
 
 # CT114 - WireGuard VPN
-create_container 114 "grom-vpn" 512 1 5 "10.0.1.14" \
+create_container 114 "grom-vpn" 384 1 4 "10.0.1.14" \
     "VPN WireGuard | Acesso remoto seguro"
 
 # -----------------------------------------------------------------------------

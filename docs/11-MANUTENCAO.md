@@ -152,7 +152,7 @@ tail -50 /var/log/nginx/error.log
 1. Verificar VPN WireGuard local
 2. Verificar se OPNsense está rodando: `qm status 100` (Proxmox host)
 3. Verificar se internet está operando
-4. Último recurso: acesso físico ao Mini PC
+4. Último recurso: acesso físico ao HP EliteDesk
 
 ### Disco cheio
 ```bash

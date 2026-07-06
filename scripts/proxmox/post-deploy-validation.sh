@@ -223,7 +223,6 @@ check_host_path /usr/local/sbin/grom-backup-containers.sh "script de backup VM/L
 
 section "VM e containers"
 check_vm_running 100 "OPNsense"
-check_optional_vm_running 120 "Home Assistant OS"
 check_optional_vm_running 130 "Grom_Security"
 check_ct_running 110 "Web"
 check_ct_running 111 "Database"

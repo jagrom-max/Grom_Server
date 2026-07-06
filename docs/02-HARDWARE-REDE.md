@@ -2,14 +2,16 @@
 
 ## Hardware Principal
 
-### Beelink Mini PC
+### HP EliteDesk 800 G4 Mini
 | Especificação | Detalhe |
 |---|---|
-| **Processador** | Intel Core i5-1035G7 (4C/8T, 1.2-3.7GHz) |
+| **Processador** | Intel Core i7-8700T (6C/12T) |
 | **RAM** | 16GB DDR4 |
-| **SSD** | 1TB NVMe |
+| **SSD original** | 256GB; nao usar para a implantacao definitiva |
+| **SSD definitivo** | 500GB |
 | **Ethernet** | 1x RJ45 Gigabit |
 | **Virtualização** | VT-x e VT-d suportados ✅ |
+| **Video analitico** | Frigate/OpenVINO na iGPU Intel, condicionado a teste |
 
 ### Adaptador Ugreen USB-A 3.0 para LAN RJ45 2.5G
 - Chip: RTL8156B (suportado nativo Linux 5.x+)
@@ -22,7 +24,12 @@
 - Função: Distribuir rede LAN interna para dispositivos físicos
 - Status: **aprovado para a Fase 1** do projeto
 
-### Backup: HD Externo 1TB USB 3.0
+### Backup: unidade externa de 1TB USB
+
+- Uso exclusivo para backup operacional, `vzdump`, Borg e evidencias selecionadas.
+- Nao usar como destino de gravacao continua do Frigate.
+- Montagem esperada no host: `/mnt/backup-external`.
+- O DVR Intelbras iMHDX 3008 permanece como gravador continuo principal.
 
 ---
 
@@ -46,7 +53,7 @@ BIOS → Power:
 
 ### Por que o Adaptador Ugreen é Essencial
 
-O Mini PC Beelink possui **apenas 1 porta Ethernet onboard**. Para operar um firewall
+O HP EliteDesk possui **1 porta Ethernet onboard disponível para o projeto**. Para operar um firewall
 real (OPNsense) é obrigatório ter **2 interfaces de rede fisicamente separadas**:
 
 - **Interface WAN**: Recebe o tráfego da internet (não filtrado, potencialmente malicioso)
@@ -62,7 +69,7 @@ a separação física completa entre o tráfego externo e interno.
 
 | Interface Física | Localização | Nome Linux | Bridge Proxmox | Função | Velocidade |
 |---|---|---|---|---|---|
-| **ETH onboard** | Porta RJ45 traseira do Mini PC | `eth0` | `vmbr0` | **WAN** (Internet) | 1 Gbps |
+| **ETH onboard** | Porta RJ45 traseira do HP EliteDesk | `eth0` | `vmbr0` | **WAN** (Internet) | 1 Gbps |
 | **Ugreen USB** | Conectado em porta USB-A 3.0 | `enx<MAC>` | `vmbr1` | **LAN** (Rede interna) | 2.5 Gbps |
 
 ### Por que essa distribuição?
@@ -84,7 +91,7 @@ a separação física completa entre o tráfego externo e interno.
        │
        ▼ Cabo Cat6
 3. ╔═══════════════════════════════════════════════════════════════╗
-   ║  MINI PC - PORTA ONBOARD (eth0)  ←── ENTRADA WAN            ║
+   ║  HP ELITEDESK - PORTA ONBOARD (eth0)  ←── ENTRADA WAN       ║
    ║       │                                                       ║
    ║       ▼                                                       ║
    ║  ┌─────────────────────────────────────────────────────────┐  ║
@@ -111,7 +118,7 @@ a separação física completa entre o tráfego externo e interno.
    ║  └─────────────────────────────────────────────────────────┘  ║
    ║       │                                                       ║
    ║       ▼                                                       ║
-   ║  MINI PC - PORTA USB UGREEN (enx...)  ←── SAÍDA LAN          ║
+   ║  HP ELITEDESK - USB UGREEN (enx...)  ←── SAÍDA LAN          ║
    ╚═══════════════════════════════════════════════════════════════╝
        │
        ▼ Cabo Cat6
@@ -158,9 +165,9 @@ Como o switch atual não faz VLAN, a LAN física deve ser tratada como ambiente 
 ## Topologia de Rede Resumida
 
 ```
-[ISP 650Mbps] → [Mercusys AX3000 (AP)] → Cat6 → [Mini PC ETH0 = WAN]
+[ISP 650Mbps] → [Mercusys AX3000 (AP)] → Cat6 → [HP EliteDesk ETH0 = WAN]
                                                     ↕ OPNsense Firewall
-                                                  [Mini PC USB Ugreen = LAN]
+                                                  [HP EliteDesk USB Ugreen = LAN]
                                                          │ Cat6
                                                   [Switch TP-Link TL-SG108]
                                                     │ (dispositivos físicos)
@@ -240,7 +247,7 @@ ethtool enxXXXXXXXXXXXX
 ### Essenciais
 | Equipamento | Motivo | Custo Est. |
 |---|---|---|
-| Cabos Cat6 (3x) | Conexões físicas (roteador+switch+mini pc) | R$ 45 |
+| Cabos Cat6 (3x) | Conexões físicas (roteador+switch+HP EliteDesk) | R$ 45 |
 | **Nobreak 600VA+** | Proteção contra queda de energia ⚠️ | R$ 250-400 |
 
 ### Futuro

@@ -4,7 +4,8 @@ Este roteiro cobre o que pode ser feito no equipamento definitivo antes de levar
 
 ## O que pode ser feito em bancada
 
-- Instalar Proxmox no mini PC definitivo.
+- Substituir o SSD original de 256 GB pelo SSD de 500 GB.
+- Instalar Proxmox no HP EliteDesk 800 G4 Mini definitivo.
 - Validar CPU, virtualizacao, RAM, disco e interfaces de rede.
 - Copiar e conferir o pacote `grom-scripts.tar.gz`.
 - Criar `/etc/grom/grom.env` com segredos reais guardados no cofre.
@@ -102,6 +103,8 @@ https://grom.seg.br/server/
 - CT110-CT114 sobem.
 - Dashboard abre por LAN.
 - Backup no HD externo foi criado.
+- Unidade USB de 1 TB permanece montada de forma estavel apos reinicio.
+- Frigate grava somente eventos/testes curtos; gravacao continua permanece no DVR.
 - Restore drill foi executado.
 - Nenhuma porta administrativa foi exposta na bancada.
 - Logs principais foram revisados.

@@ -6,17 +6,18 @@ Este projeto deve usar ao maximo os equipamentos ja disponiveis, evitando compra
 
 Prosseguir com:
 
-- Mini PC Beelink i5, 16 GB RAM, SSD 1 TB.
+- HP EliteDesk 800 G4 Mini, i7-8700T, 16 GB RAM e SSD de 500 GB.
 - Adaptador Ugreen USB 2.5G para separar WAN/LAN.
 - Switch TP-Link TL-SG108 atual como LAN restrita.
-- HD externo Toshiba 1 TB para backup inicial.
+- Unidade externa USB de 1 TB para backup inicial.
+- DVR Intelbras iMHDX 3008 para gravacao continua, evitando consumir o SSD do servidor.
 - OPNsense, Proxmox, WireGuard, Nginx, MySQL e BorgBackup.
 
 ## O que nao compraremos agora
 
 - Switch PoE, pois nao ha AP/camera/telefone IP para alimentar.
 - Switch gerenciavel por impulso, pois o Ugreen ja separa WAN/LAN fisicamente.
-- Appliance dedicado de firewall, enquanto a carga e o risco operacional estiverem dentro da capacidade do mini PC.
+- Appliance dedicado de firewall, enquanto a carga e o risco operacional estiverem dentro da capacidade do HP EliteDesk.
 - NAS, enquanto o backup com HD externo e rotacao manual atender ao RPO/RTO definidos.
 
 ## Compras que podem ser justificadas

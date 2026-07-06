@@ -30,6 +30,9 @@ Este checklist organiza o que deve ficar pronto antes da instalacao fisica do Gr
 - Definir politica de retencao de documentos e logs.
 - Definir responsavel LGPD/seguranca e contato de incidente.
 - Confirmar que a Fase 1 usara o switch atual apenas como LAN restrita, sem VLAN.
+- Confirmar instalacao fisica do SSD de 500 GB no HP EliteDesk e guardar a unidade original de 256 GB separadamente.
+- Identificar a unidade USB de 1 TB como backup; ela nao pode ser usada para gravacao continua do Frigate.
+- Registrar IP, canais e usuario RTSP/ONVIF somente leitura do DVR Intelbras iMHDX 3008.
 
 ## Comprar antes da instalacao
 
@@ -41,6 +44,7 @@ Este checklist organiza o que deve ficar pronto antes da instalacao fisica do Gr
 ## Validar no dia da instalacao
 
 - BIOS com VT-x, VT-d e Hyper-Threading habilitados.
+- HP EliteDesk 800 G4 Mini identificado e SSD de 500 GB confirmado antes de qualquer formatacao.
 - Proxmox instalado e atualizado.
 - `scripts/proxmox/verify-host-readiness.sh` executado sem falhas.
 - OPNsense como unico caminho entre WAN e LAN.
@@ -48,12 +52,15 @@ Este checklist organiza o que deve ficar pronto antes da instalacao fisica do Gr
 - CT110 web, CT111 banco, CT112 backup, CT113 monitoramento, CT114 VPN.
 - Dashboard `https://grom.seg.br/server/` publicado com logo e dados de `status.json`, acessivel apenas por LAN/VPN.
 - Proxmox e OPNsense acessiveis apenas por LAN/VPN.
-- VM120 Home Assistant OS planejada em `10.0.1.20`.
-- VM130 Grom_Security planejada em `10.0.1.30`.
+- Home Assistant marcado como externo/futuro; nao criar VM120 neste host.
+- VM130 Grom_Security/Frigate criada em `10.0.1.30`, com disco inicial de 100 GB.
+- DVR Intelbras iMHDX 3008 em IP fixo/reserva, preferencialmente `10.0.1.40`.
+- Gravacao continua validada no DVR; Frigate limitado a eventos, snapshots e clips curtos.
 - Apenas portas externas 80/443 e 51820 liberadas, se realmente necessarias.
 - Certificados TLS emitidos para `grom.seg.br` e, durante a transicao, `web.grom.seg.br` e `docs.grom.seg.br`.
 - Teste de login, consulta, cadastro e upload nos sistemas.
 - Primeiro backup completo executado.
+- Unidade USB de 1 TB montada em `/mnt/backup-external` e visivel no CT112 como `/mnt/external`.
 - Se o segundo HD estiver disponivel, montar em `/mnt/backup-external-2` e validar bind mount `/mnt/external2` no CT112.
 - Cron/timer do Proxmox host configurado para `scripts/proxmox/backup-containers.sh`.
 - Restore de teste executado em ambiente temporario.

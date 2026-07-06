@@ -4,7 +4,8 @@
 
 1. **Download**: https://www.proxmox.com/en/downloads → Proxmox VE ISO atual
 2. **Pendrive bootável**: Usar Balena Etcher ou Rufus
-3. **Boot**: USB no Mini PC, selecionar Install Proxmox VE
+3. **Boot**: USB no HP EliteDesk, selecionar Install Proxmox VE
+4. Confirmar que o destino e o SSD novo de 500 GB, nunca a unidade original de 256 GB
 
 ### Opções de Instalação
 - **Filesystem**: ext4 (SSD único, melhor performance)

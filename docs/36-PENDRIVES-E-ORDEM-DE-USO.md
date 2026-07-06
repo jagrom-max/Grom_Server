@@ -12,12 +12,13 @@ para guardar arquivos de apoio do Grom Server.
 
 ### Ordem de uso
 
-1. Conectar o pendrive `PVE_BOOT` na maquina definitiva.
-2. Entrar na BIOS/UEFI e escolher boot por USB em modo UEFI.
-3. Iniciar o instalador oficial do Proxmox VE.
-4. Selecionar cuidadosamente somente o disco correto da maquina definitiva.
-5. Concluir a instalacao do Proxmox.
-6. Remover este pendrive apos a instalacao ou no primeiro reinicio, se
+1. Confirmar que o SSD de 500 GB substituiu a unidade original de 256 GB.
+2. Conectar o pendrive `PVE_BOOT` no HP EliteDesk 800 G4 Mini.
+3. Entrar na BIOS/UEFI e escolher boot por USB em modo UEFI.
+4. Iniciar o instalador oficial do Proxmox VE.
+5. Selecionar cuidadosamente somente o SSD novo de 500 GB.
+6. Concluir a instalacao do Proxmox.
+7. Remover este pendrive apos a instalacao ou no primeiro reinicio, se
    necessario.
 
 ### Lembretes

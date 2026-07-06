@@ -1,15 +1,18 @@
-# Home Assistant OS e Grom_Security
+# Home Assistant externo e Grom_Security no HP EliteDesk
 
 Esta readequacao separa automacao residencial/IoT de seguranca operacional. O objetivo e evitar que integracoes de dispositivos, video, OCR e alertas fiquem misturados com o `Grom.Seg` principal.
 
 ## Decisao arquitetural
 
-Criar duas VMs dedicadas:
+Separar as cargas entre o HP EliteDesk atual e uma segunda maquina futura:
 
-| VM | Nome | IP sugerido | Funcao |
+| Ambiente | Nome | IP sugerido | Funcao |
 |---|---|---:|---|
-| VM120 | home-assistant | 10.0.1.20 | Home Assistant OS e automacoes |
-| VM130 | grom-security | 10.0.1.30 | Video, eventos, OCR, API e painel de seguranca |
+| Maquina externa futura | home-assistant | A reservar | Home Assistant OS e automacoes |
+| VM130 no HP EliteDesk | grom-security | 10.0.1.30 | Frigate, video, eventos, OCR, API e painel de seguranca |
+
+O servidor de backup definitivo tambem ficara em outra maquina. Enquanto ela
+nao estiver disponivel, o CT112 continua no HP e grava na unidade USB de 1 TB.
 
 Manter a infraestrutura base:
 
@@ -24,7 +27,7 @@ Manter a infraestrutura base:
 
 ## Responsabilidades
 
-### VM Home Assistant OS
+### Home Assistant OS em maquina externa futura
 
 Executar:
 - Home Assistant.
@@ -116,28 +119,34 @@ homeassistant/alarm
 
 ## Alocacao de recursos
 
-O mini PC possui 16 GB RAM e 4C/8T. A configuracao precisa ser conservadora.
+O HP EliteDesk possui 16 GB RAM e 6C/12T. A configuracao continua conservadora
+porque o Frigate compartilha o host com firewall, banco, aplicacao e
+monitoramento.
 
 | Componente | RAM | vCPU | Disco | Observacao |
 |---|---:|---:|---:|---|
 | Proxmox host | 1.5-2 GB | - | 30 GB | Base |
 | VM100 OPNsense | 2 GB | 2 | 20 GB | Firewall |
-| VM120 Home Assistant OS | 2 GB | 2 | 32 GB | Automacao/IoT |
-| VM130 Grom_Security | 4 GB | 2-4 | 160 GB | Video/eventos/OCR com OpenVINO |
-| CT110 Grom.Seg | 3 GB | 3 | 100 GB | Aplicacao principal |
-| CT111 MySQL | 2.5 GB | 2 | 200 GB | Banco |
-| CT112 Backup | 768 MB | 1 | 50 GB | Borg/dumps |
-| CT113 Monitor | 768 MB | 1 | 20 GB | Netdata/Uptime Kuma |
-| CT114 VPN | 512 MB | 1 | 5 GB | WireGuard |
+| Home Assistant externo | Fora do host | - | - | Automacao/IoT em outra maquina |
+| VM130 Grom_Security | 4 GB | 4 | 100 GB | Frigate, video/eventos/OCR com OpenVINO |
+| CT110 Grom.Seg | 2.5 GB | 3 | 60 GB | Aplicacao principal |
+| CT111 MySQL | 2 GB | 2 | 100 GB | Banco |
+| CT112 Backup | 512 MB | 1 | 16 GB | Borg/dumps; dados no USB de 1 TB |
+| CT113 Monitor | 512 MB | 1 | 12 GB | Netdata/Uptime Kuma |
+| CT114 VPN | 384 MB | 1 | 4 GB | WireGuard |
 
-Observacao: Frigate com analise por CPU pode consumir bastante. Para o i5-1035G7, a estrategia preferencial passa a ser OpenVINO com GPU integrada Intel. Se a iGPU nao ficar estavel no passthrough para a VM, usar OpenVINO em CPU como fallback temporario, com poucos streams, baixa taxa de FPS, zonas bem definidas e snapshots curtos.
+Observacao: Frigate com analise por CPU pode consumir bastante. Para o
+i7-8700T, a estrategia preferencial e OpenVINO com GPU integrada Intel. Se a
+iGPU nao ficar estavel no passthrough para a VM, usar OpenVINO em CPU como
+fallback temporario, com poucos streams, baixa taxa de FPS, zonas bem
+definidas e snapshots curtos.
 
 ## OpenVINO e Intel iGPU
 
 Decisao recomendada:
 
 ```text
-Frigate/OpenCV -> OpenVINO -> Intel iGPU do i5-1035G7
+Frigate/OpenCV -> OpenVINO -> Intel iGPU do i7-8700T
 Fallback -> OpenVINO CPU
 Compra futura -> Coral somente se OpenVINO nao atender
 ```
@@ -181,7 +190,7 @@ Portas publicas continuam restritas a:
 
 ```mermaid
 flowchart LR
-    HA[VM120 Home Assistant OS\n10.0.1.20]
+    HA[Home Assistant externo futuro]
     SEC[VM130 Grom_Security\n10.0.1.30]
     MQTT[MQTT broker]
     CAM[Cameras / sensores]
@@ -201,7 +210,7 @@ flowchart LR
 
 ## Retencao de midia
 
-Como o SSD e de 1 TB, usar retencao conservadora:
+Como o SSD e de 500 GB e atende todo o host, usar retencao conservadora:
 
 | Tipo de gravacao | Local |
 |---|---|
@@ -222,20 +231,23 @@ Videos longos e gravacao continua nao sao recomendados nesta fase sem storage de
 
 ## Backup
 
-Backup obrigatorio:
-- configuracoes Home Assistant;
+Backup obrigatorio no HP:
 - compose/env do Grom_Security;
 - banco de eventos;
 - snapshots relevantes;
 - configuracao MQTT.
 
+Quando o Home Assistant externo estiver disponivel, incluir seus backups
+nativos na politica da segunda maquina.
+
 Backup cauteloso:
 - videos curtos somente se forem evidencia ou evento marcado.
 
-Com segundo HD externo de 1 TB:
-- HD principal: backups operacionais diarios.
-- Segundo HD: copia B/offline, snapshots relevantes e evidencias importantes.
-- Nao usar segundo HD para gravacao continua de video.
+Com a unidade externa de 1 TB:
+- manter backups operacionais diarios do HP;
+- guardar snapshots relevantes e evidencias importantes;
+- nao usar a unidade para gravacao continua de video;
+- replicar para o futuro servidor de backup quando ele estiver disponivel.
 
 Nao fazer backup integral de cache de video sem necessidade.
 
@@ -243,7 +255,8 @@ Nao fazer backup integral de cache de video sem necessidade.
 
 | Item | Prioridade | Motivo |
 |---|---|---|
-| Segundo HD 2 TB+ | Alta | Retencao de video/snapshots |
+| Servidor de backup dedicado | Alta | Segunda copia e separacao fisica |
+| Storage dedicado 2 TB+ | Media | Apenas se houver necessidade de ampliar retencao de eventos |
 | Nobreak | Alta | Evita corrupcao em banco/video |
 | Acelerador Coral USB/M.2 | Baixa/Media | Avaliar somente se OpenVINO na iGPU nao atender |
 | Switch gerenciavel/VLAN | Media | Separar IoT/cameras/servidores/admin |
@@ -251,7 +264,7 @@ Nao fazer backup integral de cache de video sem necessidade.
 ## Criterio para ativar em producao
 
 Antes de uso real:
-- Home Assistant acessivel somente via VPN/LAN.
+- Quando instalado, Home Assistant externo acessivel somente via VPN/LAN.
 - Grom_Security acessivel somente via VPN/LAN.
 - MQTT com usuario/senha.
 - Cameras/sensores sem acesso direto a rede administrativa.

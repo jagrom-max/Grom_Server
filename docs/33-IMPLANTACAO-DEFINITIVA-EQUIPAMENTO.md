@@ -1,6 +1,14 @@
 # Implantacao definitiva no equipamento
 
-Este documento resume o caminho operacional para levar o Grom Server ao mini PC definitivo com menor risco de erro humano.
+Este documento resume o caminho operacional para levar o Grom Server ao HP EliteDesk 800 G4 Mini definitivo com menor risco de erro humano.
+
+Hardware alvo:
+
+- Intel Core i7-8700T, 16 GB DDR4;
+- SSD de 500 GB instalado no lugar da unidade original de 256 GB;
+- unidade externa USB de 1 TB para backup;
+- adaptador Ugreen USB 2.5GbE como segunda interface;
+- DVR Intelbras iMHDX 3008 integrado ao Frigate, mas responsavel pela gravacao continua.
 
 ## Estado atual do pacote
 
@@ -80,6 +88,8 @@ Parar e corrigir antes de continuar se ocorrer qualquer item:
 - OPNsense nao assumiu caminho WAN/LAN;
 - `validate-deploy-config.sh --strict` aponta variavel ausente;
 - backup externo esperado nao montado;
+- SSD de 500 GB nao instalado ou unidade de 256 GB selecionada por engano;
+- Frigate configurado para gravacao continua indiscriminada no SSD interno;
 - porta administrativa aparece publica;
 - restore ainda nao foi testado.
 
@@ -98,8 +108,12 @@ Parar e corrigir antes de continuar se ocorrer qualquer item:
 
 Quando o Server passar pelo primeiro deploy real e pelos validadores, o caminho natural e iniciar o Grom Security em dry-run:
 
-1. subir VM130;
+1. subir VM130 no HP EliteDesk;
 2. validar rede e storage;
 3. integrar MQTT/Home Assistant sem notificacoes reais;
 4. testar cameras e regras com eventos simulados;
 5. so depois ativar alertas reais e retencao definitiva.
+
+O Home Assistant nao deve ser criado neste host. Sua integracao sera feita
+posteriormente, a partir de outra maquina. O servidor de backup dedicado tambem
+sera externo; ate sua chegada, manter CT112 e a unidade USB de 1 TB.

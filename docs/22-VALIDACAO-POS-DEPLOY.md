@@ -44,7 +44,7 @@ bash /root/grom-scripts/scripts/proxmox/post-deploy-validation.sh --public-targe
 | Area | Verificacao |
 |---|---|
 | Host | Root, Proxmox, log do deploy, script de backup VM/LXC |
-| VM/CT | VM100, CT110-CT114 e VMs opcionais VM120/VM130 quando criadas |
+| VM/CT | VM100, CT110-CT114 e VM130; Home Assistant externo e validado separadamente |
 | Servicos | Nginx, PHP-FPM, MySQL, WireGuard e Netdata |
 | Rede interna | Web -> MySQL, Backup -> MySQL, Monitor -> Web |
 | Backup | Ambiente de backup, cron, diretorios, cron Proxmox |

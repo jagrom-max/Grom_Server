@@ -343,7 +343,6 @@ capture_resource_extras
 
 section "VM e containers"
 check_vm_running 100 "OPNsense"
-check_optional_vm 120 "Home Assistant OS"
 check_optional_vm 130 "Grom_Security"
 check_ct_running 110 "Web/SigePol"
 check_ct_running 111 "Database"

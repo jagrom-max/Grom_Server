@@ -8,12 +8,13 @@ Este documento consolida a topologia, os fluxos e as matrizes que devem orientar
 flowchart TD
     Internet[Internet fibra 650 Mbps]
     Router[Mercusys MR80X / AX3000]
-    WanNic[Mini PC - porta onboard - WAN]
+    WanNic[HP EliteDesk - porta onboard - WAN]
     Proxmox[Proxmox VE]
     OPN[VM100 OPNsense]
     LanNic[Adaptador Ugreen USB 2.5G - LAN]
     Switch[Switch TP-Link TL-SG108 - LAN restrita]
-    Hd[HD externo Toshiba 1 TB]
+    Hd[Unidade USB externa 1 TB - backup]
+    DVR[DVR Intelbras iMHDX 3008]
 
     Internet --> Router
     Router --> WanNic
@@ -22,6 +23,7 @@ flowchart TD
     OPN --> LanNic
     LanNic --> Switch
     Proxmox --> Hd
+    Switch --> DVR
 ```
 
 Observacoes:
@@ -40,8 +42,9 @@ flowchart LR
     BAK[CT112 Backup\n10.0.1.12\nBorg, rclone]
     MON[CT113 Monitor\n10.0.1.13\nNetdata, Uptime Kuma]
     VPN[CT114 VPN\n10.0.1.14\nWireGuard]
-    HA[VM120 Home Assistant OS\n10.0.1.20]
     SEC[VM130 Grom_Security\n10.0.1.30]
+    DVR[DVR Intelbras iMHDX 3008\n10.0.1.40]
+    HA[Home Assistant externo futuro]
 
     WAN --> OPN
     OPN --> WEB
@@ -51,7 +54,8 @@ flowchart LR
     MON --> WEB
     MON --> DB
     MON --> VPN
-    HA --> SEC
+    DVR --> SEC
+    HA -. MQTT/API futura .-> SEC
     SEC --> WEB
     SEC --> DB
     VPN --> OPN
@@ -118,7 +122,7 @@ flowchart TD
     BAK[CT112 Backup]
     Borg[Borg repos criptografados]
     HD[HD externo A local]
-    HD2[HD externo B opcional/offline]
+    Future[Servidor de backup futuro]
     Drive[Google Drive via rclone crypt - opcional]
 
     DB -->|mysqldump TLS a cada 6h| BAK
@@ -126,14 +130,15 @@ flowchart TD
     PVE -->|vzdump diario VM/LXC| HD
     BAK --> Borg
     Borg --> HD
-    Borg -->|segunda copia/rotacao| HD2
+    HD -->|replica futura| Future
     HD -->|copia criptografada| Drive
-    HD2 -->|evidencias importantes| Drive
+    Future -->|copia externa futura| Drive
 ```
 
 Regras:
 - Google Drive e apenas copia externa criptografada, nunca backup principal.
-- Segundo HD de 1 TB, se disponivel, deve ser usado como copia B/offline ou evidencias, nao como gravacao continua.
+- A unidade USB de 1 TB e backup, nao armazenamento de gravacao continua.
+- O futuro servidor de backup deve receber replica adicional da unidade USB.
 - O primeiro restore deve ser testado antes de inserir dados reais.
 - Chaves Borg, senha Borg e senha do rclone crypt ficam fora do repositorio.
 
@@ -142,13 +147,13 @@ Regras:
 ```mermaid
 flowchart TD
     A[Preparar kit offline e senhas]
-    B[Instalar Proxmox no mini PC]
+    B[Instalar SSD 500 GB e Proxmox no HP EliteDesk]
     C[Configurar bridges vmbr0 WAN e vmbr1 LAN]
     D[Executar verify-host-readiness]
     E[Criar VM100 OPNsense]
     F[Configurar OPNsense e regras minimas]
     G[Criar containers CT110-CT114]
-    H[Criar VMs Home Assistant e Grom_Security]
+    H[Criar VM130 Grom_Security e Frigate]
     I[Executar deploy-all]
     J[Testar HTTPS, VPN, backup, alertas]
     K[Liberar uso controlado]
@@ -167,8 +172,9 @@ flowchart TD
 | CT112 | grom-backup | 10.0.1.12 | Nao publico | Borg, dumps, rclone | VPN/LAN/SSH restrito |
 | CT113 | grom-monitor | 10.0.1.13 | Nao publico | Netdata, Uptime Kuma | VPN/LAN |
 | CT114 | grom-vpn | 10.0.1.14 | UDP/51820 | WireGuard | VPN/LAN/SSH restrito |
-| VM120 | home-assistant | 10.0.1.20 | Nao publico | Home Assistant OS, Matter, automacoes, alarm panel | VPN/LAN |
-| VM130 | grom-security | 10.0.1.30 | Nao publico | MQTT, video, OCR, eventos, alertas | VPN/LAN |
+| Externo futuro | home-assistant | A reservar | Nao publico | Home Assistant, Matter e automacoes em outra maquina | VPN/LAN |
+| VM130 | grom-security | 10.0.1.30 | Nao publico | Frigate, MQTT, video, OCR, eventos e alertas | VPN/LAN |
+| Fisico | DVR Intelbras iMHDX 3008 | 10.0.1.40 sugerido | Nao publico | Gravacao continua e origem de streams | VPN/LAN restrita |
 
 ## Matriz de portas
 
@@ -184,7 +190,7 @@ flowchart TD
 | CT110 Web | CT111 DB | 3306 | TCP | Permitir com TLS | Aplicacoes acessam banco |
 | CT112 Backup | CT111 DB | 3306 | TCP | Permitir com TLS | Backup logico |
 | CT113 Monitor | CT110/CT111/CT114 | portas de servico | TCP/ICMP | Permitir minimo | Monitoramento interno |
-| VM120 Home Assistant | VM130 Grom_Security | 1883/API conforme desenho | TCP | Permitir restrito | MQTT/eventos |
+| Home Assistant externo futuro | VM130 Grom_Security | 1883/API conforme desenho | TCP | Permitir restrito quando instalado | MQTT/eventos |
 | VM130 Grom_Security | CT110/CT111 | 443/3306 conforme desenho | TCP | Permitir restrito | API/eventos/banco |
 | VM130 Grom_Security | DVR/cameras | RTSP/ONVIF conforme equipamento | TCP/UDP | Permitir restrito | Streams de video e descoberta |
 | Internet | DVR/cameras | Qualquer | TCP/UDP | Bloquear | Sem exposicao publica |

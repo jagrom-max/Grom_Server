@@ -47,9 +47,9 @@ Com o equipamento disponivel hoje, a arquitetura aprovada e:
 
 ```text
 Internet/ONT
-  -> Mini PC porta onboard (WAN)
+  -> HP EliteDesk porta onboard (WAN)
   -> OPNsense no Proxmox
-  -> Mini PC adaptador Ugreen USB 2.5G (LAN)
+  -> HP EliteDesk adaptador Ugreen USB 2.5G (LAN)
   -> Switch TP-Link TL-SG108 nao gerenciavel
   -> Rede interna restrita 10.0.1.0/24
   -> VPN 10.0.10.0/24

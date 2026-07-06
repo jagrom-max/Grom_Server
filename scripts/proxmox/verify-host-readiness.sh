@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # GROM SERVER - Verificacao de prontidao do Proxmox host
-# Executar no mini PC apos instalar Proxmox e antes do deploy.
+# Executar no HP EliteDesk apos instalar Proxmox e antes do deploy.
 # =============================================================================
 
 set -euo pipefail

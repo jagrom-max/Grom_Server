@@ -1,6 +1,6 @@
 # Runbook da primeira implantacao
 
-Este runbook deve ser usado no dia em que o mini PC for instalado na rede definitiva. Ele prioriza repetibilidade, baixo risco e rastreabilidade.
+Este runbook deve ser usado no dia em que o HP EliteDesk for instalado na rede definitiva. Ele prioriza repetibilidade, baixo risco e rastreabilidade.
 
 ## Antes do dia da instalacao
 
@@ -30,7 +30,7 @@ Reservar 6 a 8 horas para a primeira implantacao:
 
 ## Instalacao fisica
 
-1. Conectar a porta onboard do mini PC ao caminho de internet/WAN.
+1. Conectar a porta onboard do HP EliteDesk ao caminho de internet/WAN.
 2. Conectar o adaptador Ugreen USB 2.5G ao switch TL-SG108.
 3. Conectar somente equipamentos confiaveis ao switch TL-SG108.
 4. Conectar o HD externo Toshiba apenas quando for configurar backup.
@@ -184,26 +184,27 @@ Confirmar IDs:
 - CT113 Monitoring.
 - CT114 VPN.
 
-## Criar VMs Home Assistant e Grom_Security
+## Criar VM Grom_Security/Frigate
 
-Essas VMs podem ser criadas depois da rede base e antes da liberacao de uso real:
+No HP EliteDesk, criar apenas a VM130 depois da rede base e antes da liberacao
+de uso real:
 
 ```bash
 cd /root/grom-scripts
 bash scripts/proxmox/create-ha-security-vms.sh
 ```
 
-Para Home Assistant OS, informar previamente o caminho da imagem oficial baixada e validada:
+O script usa `CREATE_HA_VM=0` por padrao e cria somente a VM130 com 4 GB RAM,
+4 vCPU e disco de 100 GB.
 
-```bash
-HAOS_QCOW2_IMAGE=/root/haos_ova.qcow2 bash scripts/proxmox/create-ha-security-vms.sh
-```
-
-IPs sugeridos:
-- VM120 Home Assistant OS: `10.0.1.20`.
-- VM130 Grom_Security: `10.0.1.30`.
+IP sugerido:
+- VM130 Grom_Security/Frigate: `10.0.1.30`.
 
 Criar reservas DHCP ou IPs estaticos no OPNsense.
+
+Nao criar a VM120 neste host. O Home Assistant e o servidor de backup
+definitivo serao instalados em outra maquina e integrados posteriormente por
+rede restrita. Ate la, o CT112 usa a unidade USB de 1 TB.
 
 ## Deploy automatizado
 

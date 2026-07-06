@@ -177,7 +177,7 @@ check_id_once 111 "Database"
 check_id_once 112 "Backup"
 check_id_once 113 "Monitoring"
 check_id_once 114 "VPN"
-check_id_once 120 "Home Assistant OS opcional"
+check_id_once 120 "Home Assistant OS legado; nao criar no HP por padrao"
 check_id_once 130 "Grom_Security opcional"
 
 echo ""

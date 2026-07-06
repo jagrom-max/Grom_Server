@@ -16,7 +16,7 @@ Internet (650Mbps)
        │ ETH (Cabo)
        ▼
 ┌──────────────────────────────────────────┐
-│          BEELINK MINI PC                  │
+│       HP ELITEDESK 800 G4 MINI            │
 │                                           │
 │  ETH0 (Onboard) ──► WAN (OPNsense)       │
 │  ETH1 (USB Ugreen 2.5G) ──► LAN Interna  │
@@ -38,7 +38,7 @@ Internet (650Mbps)
 
 **Opção B - Duplo NAT (Mais simples, menos ideal)**:
 - Manter o Mercusys como roteador
-- Configurar DMZ apontando para o Mini PC
+- Configurar DMZ apontando para o HP EliteDesk
 - Port forwarding das portas necessárias
 
 ### 1.3 Endereçamento IP - Fase 1 com hardware atual
@@ -61,6 +61,8 @@ Internet (650Mbps)
 | Backup Server | 10.0.1.12 | BorgBackup |
 | Monitoring | 10.0.1.13 | Netdata + Uptime Kuma |
 | WireGuard VPN | 10.0.1.14 | Servidor VPN |
+| Grom_Security/Frigate | 10.0.1.30 | Video analitico e eventos |
+| DVR Intelbras iMHDX 3008 | 10.0.1.40 | Gravacao continua e origem dos streams |
 
 ---
 
@@ -69,11 +71,13 @@ Internet (650Mbps)
 ### 2.1 Pré-requisitos
 1. Download da ISO do Proxmox VE 9.x: https://www.proxmox.com/downloads
 2. Criar pendrive bootável com Balena Etcher ou Rufus
-3. Backup de qualquer dado existente no Mini PC
+3. Backup de qualquer dado existente no HP EliteDesk
+4. Substituir o SSD original de 256 GB pelo SSD de 500 GB
+5. Separar e identificar a unidade USB de 1 TB destinada a backup
 
 ### 2.2 Procedimento de Instalação
 1. Boot pelo pendrive USB
-2. Selecionar o SSD 1TB como destino
+2. Confirmar o modelo/capacidade e selecionar somente o SSD novo de 500 GB
 3. Filesystem: **ext4** (mais simples para SSD único)
 4. Configurar hostname: `grom-pve.local`
 5. IP de gerenciamento: `10.0.1.100` (temporário, será ajustado)
@@ -127,6 +131,20 @@ Internet (650Mbps)
 3. **CT112** - Backup Server
 4. **CT113** - Monitoring
 5. **CT114** - WireGuard VPN
+
+Os discos dos containers devem seguir o perfil compacto do HP EliteDesk:
+
+| Container | Disco |
+|---|---:|
+| CT110 Web | 60 GB |
+| CT111 MySQL | 100 GB |
+| CT112 Backup | 16 GB; dados na unidade USB de 1 TB |
+| CT113 Monitoramento | 12 GB |
+| CT114 VPN | 4 GB |
+
+A VM130 Grom_Security/Frigate recebe inicialmente 100 GB. A VM120 Home
+Assistant nao deve ser criada neste host, pois o Home Assistant sera instalado
+em outra maquina.
 
 ---
 

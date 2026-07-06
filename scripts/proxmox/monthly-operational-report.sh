@@ -94,11 +94,7 @@ latest_path() {
     run_or_warn "VMs" qm list
     run_or_warn "Containers" pct list
     run_or_warn "Status OPNsense VM100" qm status 100
-    if qm status 120 >/dev/null 2>&1; then
-        run_or_warn "Status Home Assistant VM120" qm status 120
-    else
-        echo "[AVISO] VM120 Home Assistant ainda nao criada"
-    fi
+    echo "[INFO] Home Assistant previsto em maquina externa; VM120 nao e requisito deste host"
     if qm status 130 >/dev/null 2>&1; then
         run_or_warn "Status Grom_Security VM130" qm status 130
     else
