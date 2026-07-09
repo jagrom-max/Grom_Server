@@ -300,7 +300,7 @@ run_in_container 111 "security/hardening.sh" "Hardening de segurança"
 run_in_container 111 "security/setup-email-relay.sh" "Relay SMTP"
 
 # =============================================================================
-section "FASE 5: Setup Backup (CT112)"
+section "FASE 5: Setup Backup Local Temporario (CT112)"
 # =============================================================================
 require_env BORG_PASSPHRASE
 push_to_container 112 "backup/backup-databases.sh"

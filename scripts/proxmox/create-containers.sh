@@ -114,9 +114,9 @@ create_container 110 "grom-web" 2560 3 60 "10.0.1.10" \
 create_container 111 "grom-db" 2048 2 100 "10.0.1.11" \
     "Banco de Dados MySQL 8.0 | grom_seg + legados"
 
-# CT112 - Backup Server
+# CT112 - Orquestrador de backup local temporario
 create_container 112 "grom-backup" 512 1 16 "10.0.1.12" \
-    "Orquestracao de Backup - BorgBackup + rsync | Unidade USB 1TB"
+    "Orquestracao de backup local temporario - BorgBackup + rsync | Unidade USB 1TB"
 
 # CT113 - Monitoring
 create_container 113 "grom-monitor" 512 1 12 "10.0.1.13" \
@@ -191,7 +191,7 @@ echo "  Containers:"
 echo "  VM100 - opnsense    (10.0.1.1)  - Firewall"
 echo "  CT110 - grom-web    (10.0.1.10) - Grom.Seg Web Server"
 echo "  CT111 - grom-db     (10.0.1.11) - MySQL"
-echo "  CT112 - grom-backup (10.0.1.12) - Backup"
+echo "  CT112 - grom-backup (10.0.1.12) - Backup local temporario"
 echo "  CT113 - grom-monitor(10.0.1.13) - Monitoring"
 echo "  CT114 - grom-vpn    (10.0.1.14) - WireGuard"
 echo ""

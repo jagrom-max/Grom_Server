@@ -60,17 +60,17 @@ Neste HP EliteDesk ficam:
 - Proxmox, OPNsense e os containers do Grom Server;
 - VM130 Grom_Security com Frigate/NVR;
 - cache, banco de eventos, snapshots e videos curtos;
-- CT112 coordenando backups para a unidade USB de 1 TB.
+- CT112 coordenando backups locais para a unidade USB de 1 TB.
 
 Ficam fora deste equipamento:
 
-- Home Assistant, previsto para outra maquina;
-- servidor de backup definitivo, previsto para outra maquina;
+- Home Assistant, previsto para a segunda maquina;
+- servidor de backup definitivo, previsto para a segunda maquina;
 - gravacao continua de todas as cameras, mantida no DVR Intelbras iMHDX 3008.
 
 A unidade USB de 1 TB e o CT112 formam a camada de backup inicial. Quando o
-servidor de backup dedicado entrar em operacao, ele deve receber uma replica
-adicional sem eliminar imediatamente a copia USB local.
+servidor de backup dedicado da segunda maquina entrar em operacao, ele deve
+receber uma replica adicional sem eliminar imediatamente a copia USB local.
 
 ## Evolucao futura
 

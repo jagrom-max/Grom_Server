@@ -111,6 +111,6 @@ create_security_vm
 echo ""
 echo "VM planejada no HP EliteDesk:"
 echo "  VM${SEC_VM_ID} ${SEC_NAME}      10.0.1.30 sugerido"
-echo "  Home Assistant: maquina externa futura"
+echo "  Home Assistant + backup dedicado: segunda maquina"
 echo ""
 echo "Configurar IPs estaticos/DHCP reservations no OPNsense."

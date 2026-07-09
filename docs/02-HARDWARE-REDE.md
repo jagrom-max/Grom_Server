@@ -30,6 +30,8 @@
 - Nao usar como destino de gravacao continua do Frigate.
 - Montagem esperada no host: `/mnt/backup-external`.
 - O DVR Intelbras iMHDX 3008 permanece como gravador continuo principal.
+- Esta unidade e camada temporaria local; a copia fisicamente separada passara a
+  ficar na segunda maquina com Home Assistant + backup dedicado.
 
 ---
 
@@ -188,9 +190,12 @@ Como o switch atual não faz VLAN, a LAN física deve ser tratada como ambiente 
 | OPNsense LAN | 10.0.1.1 | Gateway/Firewall |
 | Web Server | 10.0.1.10 | Nginx+PHP+Python |
 | MySQL Server | 10.0.1.11 | Banco de dados |
-| Backup Server | 10.0.1.12 | BorgBackup |
+| Backup local (CT112) | 10.0.1.12 | Borg/dumps/ponte para USB |
 | Monitoring | 10.0.1.13 | Netdata+Uptime Kuma |
 | WireGuard | 10.0.1.14 | VPN |
+| Segunda maquina | 10.0.1.20 | Home Assistant + backup dedicado |
+| Grom_Security/Frigate | 10.0.1.30 | Video analitico, eventos e MQTT |
+| DVR Intelbras iMHDX 3008 | 10.0.1.40 | Gravacao continua e origem dos streams |
 
 ---
 

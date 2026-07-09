@@ -33,8 +33,8 @@ Commit-base anterior a esta evolucao:
 | Backup inicial | Unidade externa USB de 1 TB |
 | Video continuo | DVR Intelbras iMHDX 3008 |
 | Video analitico | Frigate/OpenVINO na VM130 |
-| Home Assistant | Outra maquina, ainda futura |
-| Backup definitivo | Outra maquina, ainda futura |
+| Home Assistant | Segunda maquina dedicada |
+| Backup definitivo | Segunda maquina dedicada |
 
 ## Distribuicao no HP EliteDesk
 
@@ -88,7 +88,7 @@ indiscriminada do Frigate.
 
 ### Fase futura
 
-- instalar Home Assistant e o servidor de backup em outra maquina;
+- instalar Home Assistant e o servidor de backup na segunda maquina dedicada;
 - replicar os backups do HP para esse segundo host;
 - manter temporariamente a unidade USB como copia adicional;
 - validar restore nas duas copias antes de alterar a politica de retencao.

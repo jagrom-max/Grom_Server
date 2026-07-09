@@ -1,5 +1,18 @@
 # Changelog - Grom Server
 
+## [1.2.1] - 2026-07-09
+
+### Arquitetura em dois nos
+- Consolidado o HP EliteDesk como no principal do ecossistema, focado em hospedagem, borda segura, Grom.Seg e VM130 Grom_Security/Frigate.
+- Formalizada a segunda maquina dedicada para Home Assistant e servidor de backup definitivo, com papel de resiliencia e alivio de carga do HP.
+- Reclassificado o CT112 como camada de backup local temporaria, mantendo a unidade USB de 1 TB apenas como copia operacional inicial.
+- Atualizados README, inventario e runbooks centrais para refletir a nova separacao entre cerebro principal, video/NVR e automacao/backup.
+
+### Estrutura de desenvolvimento
+- Criado o diretorio `machines/` com separacao inicial entre `hp-core/` e `home-ops/`.
+- Formalizada a regra de desenvolvimento por maquina em `docs/38-ESTRUTURA-POR-MAQUINA.md`.
+- Preparados subdiretorios dedicados para `docs/`, `configs/` e `scripts/` de cada host.
+
 ## [1.2.0] - 2026-07-06
 
 ### Plataforma HP EliteDesk

@@ -11,7 +11,7 @@
 | **rclone crypt** | Cópia externa criptografada opcional para Google Drive |
 | **cron** | Agendamento de tarefas |
 
-## Container LXC: CT112 - Orquestrador de backup inicial
+## Container LXC: CT112 - Orquestrador de backup local temporario
 
 | Parâmetro | Valor |
 |---|---|
@@ -37,15 +37,15 @@ e a camada local obrigatoria. Essa fase e provisoria e nao deve ser considerada
 
 ## Unidade USB atual e servidor futuro
 
-O projeto conta inicialmente com uma unidade USB de 1 TB. A evolucao prevista
-e uma segunda maquina para backup e Home Assistant. Um segundo HD removivel
-continua opcional como copia offline.
+O projeto conta inicialmente com uma unidade USB de 1 TB. A evolucao prevista e
+uma segunda maquina para concentrar Home Assistant e o servidor de backup
+dedicado. Um segundo HD removivel continua opcional como copia offline.
 
 | Midia | Montagem | Papel recomendado |
 |---|---|---|
 | SSD interno | Proxmox/local-lvm | Sistema, VMs/CTs, dados recentes e cache operacional |
 | Unidade USB 1 TB | `/mnt/backup-external` -> CT112 `/mnt/external` | Backup operacional diario, Proxmox `vzdump`, Borg e dumps |
-| Servidor futuro | Rede restrita, destino a definir | Replica fisicamente separada e Home Assistant |
+| Segunda maquina | Rede restrita, `10.0.1.20` sugerido | Home Assistant + replica fisicamente separada dos backups do HP |
 | HD externo B opcional | `/mnt/backup-external-2` -> CT112 `/mnt/external2` | Rotacao offline e evidencias importantes |
 | Google Drive/rclone crypt | remoto criptografado | Copia externa opcional, nunca backup principal |
 
@@ -106,8 +106,8 @@ echo "UUID=<UUID_HD_B> /mnt/backup-external-2 ext4 defaults,nofail 0 2" >> /etc/
 
 > O backup de arquivos dos containers nao usa SSH root. Arquivos e configuracoes dos containers sao protegidos pelo `vzdump` no Proxmox host. O CT112 fica responsavel por dumps logicos de banco e backups Borg.
 > Google Drive, se usado, recebe apenas dados criptografados via `rclone crypt`.
-> Quando o servidor de backup dedicado entrar em operacao, adicionar a replica
-> sem remover a unidade USB ate concluir teste de restore nas duas copias.
+> Quando a segunda maquina entrar em operacao, adicionar a replica para esse
+> host sem remover a unidade USB ate concluir teste de restore nas duas copias.
 
 ---
 

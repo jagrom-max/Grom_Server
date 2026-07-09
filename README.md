@@ -19,7 +19,8 @@ O **Grom Server** é um projeto de servidor caseiro profissional, projetado para
 > `docs/26-HOME-ASSISTANT-GROM-SECURITY.md`, `docs/27-GROM-SECURITY-IMPLANTACAO.md`
 > `docs/28-CAMERAS-DVR-VIDEO.md`, `docs/29-GROM-SECURITY-REGRAS.md`
 > `docs/30-COMUNICACAO-OFICIAL.md`, `docs/31-GO-NOGO-PRODUCAO.md`
-> `docs/32-DESENVOLVIMENTO-SEGURO-LAB.md` e
+> `docs/32-DESENVOLVIMENTO-SEGURO-LAB.md`,
+> `docs/38-ESTRUTURA-POR-MAQUINA.md` e
 > `docs/37-INVENTARIO-EVOLUCAO-HP-ELITEDESK.md`.
 
 ### Fase atual: laboratorio seguro
@@ -40,6 +41,13 @@ O `Grom_Security` deve ser mantido como sistema independente e repositorio irmao
 
 O `Grom_Server` continua responsavel pela infraestrutura, runbooks, Proxmox, rede, backups e modelos de implantacao em `configs/grom-security/`, `configs/docker/` e `docs/`. Codigo, API, OCR, MQTT, alertas e motor de regras do Security devem evoluir fora da arvore do Server, evitando mistura de dependencias, commits e deploys.
 
+### Separacao por maquina
+
+Para acompanhar a nova arquitetura em dois nos, o repositorio passa a reservar
+`machines/hp-core/` para o HP EliteDesk e `machines/home-ops/` para a segunda
+maquina. Isso permite desenvolver cada host com mais liberdade, menor risco de
+mistura e melhor rastreabilidade operacional.
+
 ### Hardware Base
 | Componente | Especificação |
 |---|---|
@@ -50,8 +58,9 @@ O `Grom_Server` continua responsavel pela infraestrutura, runbooks, Proxmox, red
 | **Rede Integrada** | 1x Ethernet Gigabit |
 | **Rede USB** | Adaptador Ugreen USB-A 3.0 para LAN RJ45 2.5G |
 | **Switch** | TP-Link TL-SG108 (8 portas Gigabit) |
-| **Backup Externo** | Unidade USB de 1TB para backup operacional |
+| **Backup Externo** | Unidade USB de 1TB para backup operacional temporario |
 | **Vídeo** | Frigate/Grom_Security integrado ao DVR Intelbras iMHDX 3008 |
+| **Segunda Maquina** | Home Assistant + servidor de backup dedicado |
 
 ### Rede Atual
 | Componente | Especificação |
@@ -69,43 +78,35 @@ O `Grom_Server` continua responsavel pela infraestrutura, runbooks, Proxmox, red
 
 ## 🏗️ Arquitetura do Sistema
 
+```text
+Internet
+  -> Mercusys AX3000
+  -> HP EliteDesk 800 G4 Mini
+     -> Proxmox VE
+        -> VM100 OPNsense
+        -> CT110 Grom.Seg
+        -> CT111 MySQL
+        -> CT112 Orquestrador de backup local
+        -> CT113 Monitoramento
+        -> CT114 WireGuard
+        -> VM130 Grom_Security/Frigate
+     -> Unidade USB 1 TB
+        -> copia operacional local temporaria
+
+Segunda maquina dedicada
+  -> Home Assistant
+  -> servidor de backup definitivo
+  -> replica dos backups do HP
+
+DVR Intelbras iMHDX 3008
+  -> gravacao continua principal
+  -> streams RTSP/ONVIF para VM130
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    INTERNET (650 Mbps)                           │
-└─────────────────────┬───────────────────────────────────────────┘
-                      │
-┌─────────────────────▼───────────────────────────────────────────┐
-│              MERCUSYS AX3000 (Roteador Wi-Fi 6)                 │
-│              Port Forwarding → HP EliteDesk                     │
-└─────────────────────┬───────────────────────────────────────────┘
-                      │
-┌─────────────────────▼───────────────────────────────────────────┐
-│        HP ELITEDESK 800 G4 MINI (i7-8700T / 16GB / 500GB)       │
-│  ┌────────────────────────────────────────────────────────────┐ │
-│  │              PROXMOX VE 9.x (Hypervisor)                   │ │
-│  │  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐       │ │
-│  │  │  VM: OPNsense│ │ LXC: Web     │ │ LXC: DB      │       │ │
-│  │  │  (Firewall)  │ │ Server       │ │ Server       │       │ │
-│  │  │  2GB RAM     │ │ (Nginx+PHP+  │ │ (MySQL 8)    │       │ │
-│  │  │  2 vCPU      │ │  Python)     │ │ 3GB RAM      │       │ │
-│  │  │  WAN ↔ LAN   │ │ 4GB RAM      │ │ 2 vCPU       │       │ │
-│  │  └──────────────┘ │ 4 vCPU       │ └──────────────┘       │ │
-│  │                   └──────────────┘                         │ │
-│  │  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐       │ │
-│  │  │ LXC: Backup  │ │ LXC: Monitor │ │ LXC: VPN     │       │ │
-│  │  │ (PBS +       │ │ (Netdata +   │ │ (WireGuard)  │       │ │
-│  │  │  BorgBackup) │ │  Uptime Kuma)│ │ 512MB RAM    │       │ │
-│  │  │ 1GB RAM      │ │ 1GB RAM      │ │ 1 vCPU       │       │ │
-│  │  │ 1 vCPU       │ │ 1 vCPU       │ └──────────────┘       │ │
-│  │  └──────────────┘ └──────────────┘                         │ │
-│  └────────────────────────────────────────────────────────────┘ │
-│                          │                                      │
-│              ┌───────────▼────────────┐                         │
-│              │  HD Externo 1TB (USB)  │                         │
-│              │  Backup local/rotação  │                         │
-│              └────────────────────────┘                         │
-└─────────────────────────────────────────────────────────────────┘
-```
+
+O HP passa a ser o cerebro principal do ecossistema: hospeda a borda segura,
+os servicos centrais do `Grom Server` e a camada de video/analitico do
+`Grom_Security`. A segunda maquina assume automacao residencial e resiliencia,
+reduzindo disputa de CPU, RAM, disco e I/O no HP.
 
 ---
 
@@ -145,7 +146,18 @@ Grom_Server/
 │   ├── 27-GROM-SECURITY-IMPLANTACAO.md
 │   ├── 28-CAMERAS-DVR-VIDEO.md
 │   ├── 29-GROM-SECURITY-REGRAS.md
-│   └── 30-COMUNICACAO-OFICIAL.md
+│   ├── 30-COMUNICACAO-OFICIAL.md
+│   └── 38-ESTRUTURA-POR-MAQUINA.md
+├── machines/                          # Desenvolvimento separado por host
+│   ├── README.md                      # Regras da divisao por maquina
+│   ├── hp-core/                       # HP EliteDesk: cerebro principal
+│   │   ├── docs/
+│   │   ├── configs/
+│   │   └── scripts/
+│   └── home-ops/                      # Segunda maquina: HA + backup
+│       ├── docs/
+│       ├── configs/
+│       └── scripts/
 ├── scripts/                           # Scripts de automação
 │   ├── deploy-all.sh                  # 🚀 ORQUESTRADOR - Implanta TUDO automaticamente
 │   ├── proxmox/                       # Scripts para Proxmox
@@ -246,16 +258,18 @@ Grom_Server/
 | **OPNsense (VM)** | 2GB | 2 | 20GB | Firewall + IDS/IPS |
 | **Web Server (LXC)** | 2.5GB | 3 | 60GB | Grom.Seg |
 | **MySQL (LXC)** | 2GB | 2 | 100GB | Banco de dados |
-| **Backup (LXC)** | 512MB | 1 | 16GB | Orquestracao Borg/vzdump; dados no USB de 1TB |
+| **Backup local (LXC)** | 512MB | 1 | 16GB | Orquestracao Borg/vzdump; camada temporaria no USB de 1TB |
 | **Monitoring (LXC)** | 512MB | 1 | 12GB | Netdata + Uptime Kuma |
 | **WireGuard (LXC)** | 384MB | 1 | 4GB | VPN |
 | **Grom_Security/Frigate (VM)** | 4GB | 4 | 100GB | Deteccao, eventos, MQTT e retencao curta |
 | **Reserva** | ~2GB | - | ~120GB | Margem para host, logs, snapshots e crescimento |
-| **TOTAL planejado** | **~14GB** | **14** | **~342GB** | Sem Home Assistant neste host |
+| **TOTAL planejado no HP** | **~14GB** | **14** | **~342GB** | Sem Home Assistant e sem backup definitivo neste host |
 
 > ⚠️ **Nota**: o i7-8700T possui 6 cores / 12 threads. O Frigate deve usar OpenVINO na iGPU Intel quando os testes de passthrough forem aprovados. O DVR Intelbras permanece responsável pela gravação contínua; o SSD de 500GB não deve ser usado como arquivo NVR de longa retenção.
 
-O Home Assistant e o servidor de backup definitivo serão implantados em outra máquina. Até essa segunda máquina estar disponível, o CT112 coordena os backups para a unidade USB de 1TB.
+O Home Assistant e o servidor de backup definitivo ficam juntos em uma segunda
+maquina. Ate essa segunda maquina entrar em operacao, o CT112 coordena os
+backups para a unidade USB de 1TB como camada local provisoria.
 
 ---
 
@@ -302,7 +316,7 @@ O Home Assistant e o servidor de backup definitivo serão implantados em outra m
 | `web.grom.seg.br` | Legado/transição Grom_web | 10.0.1.10 |
 | `docs.grom.seg.br` | Legado/transição Grom Documental | 10.0.1.10 |
 | `vpn.grom.seg.br` | WireGuard VPN | 10.0.1.14 |
-| Interno/VPN apenas | Home Assistant (máquina futura) | IP a reservar |
+| Interno/VPN apenas | Segunda maquina (Home Assistant + backup) | 10.0.1.20 sugerido |
 | Interno/VPN apenas | Grom_Security | 10.0.1.30 |
 | Interno/VPN apenas | Netdata + Uptime Kuma | 10.0.1.13 |
 
@@ -312,7 +326,7 @@ O Home Assistant e o servidor de backup definitivo serão implantados em outra m
 
 **Projeto**: Grom Server  
 **Domínio**: grom.seg.br  
-**Versão**: 1.2.0
+**Versão**: 1.2.1
 **Data de Início**: Junho 2026  
 **Status**: Desenvolvimento ativo - Fase 1 aprovada com hardware atual
 

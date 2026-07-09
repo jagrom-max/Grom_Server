@@ -1,18 +1,21 @@
 # Home Assistant externo e Grom_Security no HP EliteDesk
 
-Esta readequacao separa automacao residencial/IoT de seguranca operacional. O objetivo e evitar que integracoes de dispositivos, video, OCR e alertas fiquem misturados com o `Grom.Seg` principal.
+Esta readequacao separa automacao residencial/IoT de seguranca operacional. O
+objetivo e evitar que integracoes de dispositivos, video, OCR e alertas
+fiquem misturados com o `Grom.Seg` principal e impedir sobrecarga do HP
+EliteDesk.
 
 ## Decisao arquitetural
 
-Separar as cargas entre o HP EliteDesk atual e uma segunda maquina futura:
+Separar as cargas entre o HP EliteDesk atual e uma segunda maquina dedicada:
 
 | Ambiente | Nome | IP sugerido | Funcao |
 |---|---|---:|---|
-| Maquina externa futura | home-assistant | A reservar | Home Assistant OS e automacoes |
+| Segunda maquina dedicada | home-ops | 10.0.1.20 | Home Assistant OS, backups e automacoes |
 | VM130 no HP EliteDesk | grom-security | 10.0.1.30 | Frigate, video, eventos, OCR, API e painel de seguranca |
 
-O servidor de backup definitivo tambem ficara em outra maquina. Enquanto ela
-nao estiver disponivel, o CT112 continua no HP e grava na unidade USB de 1 TB.
+Enquanto a segunda maquina nao estiver disponivel, o CT112 continua no HP e
+grava na unidade USB de 1 TB como camada local temporaria.
 
 Manter a infraestrutura base:
 
@@ -27,19 +30,24 @@ Manter a infraestrutura base:
 
 ## Responsabilidades
 
-### Home Assistant OS em maquina externa futura
+### Segunda maquina dedicada
 
 Executar:
 - Home Assistant.
+- backups nativos do Home Assistant.
+- replica dos backups do HP.
+- restauracoes de teste e retencao secundaria.
 - Matter Server.
-- Integracao com Zemismart M6.
-- Dashboards.
-- Automacoes.
+- integracao com Zemismart M6.
+- dashboards.
+- automacoes.
 - Alarm Panel.
 - Telegram/notificacoes.
-- MQTT integration.
+- MQTT integration, se esse for o desenho final.
 
-Regra: Home Assistant controla automacao e estados de dispositivos. Ele nao deve armazenar evidencias policiais principais nem ser o banco central de eventos sensiveis.
+Regra: essa maquina concentra automacao e resiliencia. O Home Assistant controla
+automacao e estados de dispositivos, mas nao deve armazenar evidencias
+policiais principais nem ser o banco central de eventos sensiveis.
 
 ### VM Grom_Security
 
@@ -127,7 +135,7 @@ monitoramento.
 |---|---:|---:|---:|---|
 | Proxmox host | 1.5-2 GB | - | 30 GB | Base |
 | VM100 OPNsense | 2 GB | 2 | 20 GB | Firewall |
-| Home Assistant externo | Fora do host | - | - | Automacao/IoT em outra maquina |
+| Segunda maquina Home Assistant + backup | Fora do host | - | - | Automacao/IoT e resiliencia em outra maquina |
 | VM130 Grom_Security | 4 GB | 4 | 100 GB | Frigate, video/eventos/OCR com OpenVINO |
 | CT110 Grom.Seg | 2.5 GB | 3 | 60 GB | Aplicacao principal |
 | CT111 MySQL | 2 GB | 2 | 100 GB | Banco |
@@ -237,8 +245,10 @@ Backup obrigatorio no HP:
 - snapshots relevantes;
 - configuracao MQTT.
 
-Quando o Home Assistant externo estiver disponivel, incluir seus backups
-nativos na politica da segunda maquina.
+Quando a segunda maquina estiver disponivel, incluir:
+- backups nativos do Home Assistant;
+- replica dos backups do HP;
+- restore recorrente dessa replica.
 
 Backup cauteloso:
 - videos curtos somente se forem evidencia ou evento marcado.
@@ -255,7 +265,7 @@ Nao fazer backup integral de cache de video sem necessidade.
 
 | Item | Prioridade | Motivo |
 |---|---|---|
-| Servidor de backup dedicado | Alta | Segunda copia e separacao fisica |
+| Segunda maquina Home Assistant + backup | Alta | Segunda copia, separacao fisica e alivio do HP |
 | Storage dedicado 2 TB+ | Media | Apenas se houver necessidade de ampliar retencao de eventos |
 | Nobreak | Alta | Evita corrupcao em banco/video |
 | Acelerador Coral USB/M.2 | Baixa/Media | Avaliar somente se OpenVINO na iGPU nao atender |
@@ -264,7 +274,7 @@ Nao fazer backup integral de cache de video sem necessidade.
 ## Criterio para ativar em producao
 
 Antes de uso real:
-- Quando instalado, Home Assistant externo acessivel somente via VPN/LAN.
+- Quando instalada, a segunda maquina deve ficar acessivel somente via VPN/LAN.
 - Grom_Security acessivel somente via VPN/LAN.
 - MQTT com usuario/senha.
 - Cameras/sensores sem acesso direto a rede administrativa.

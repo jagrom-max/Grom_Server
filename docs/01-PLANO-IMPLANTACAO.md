@@ -128,7 +128,7 @@ Internet (650Mbps)
 ### 4.2 Ordem de Criação
 1. **CT110** - Web Server
 2. **CT111** - MySQL Server
-3. **CT112** - Backup Server
+3. **CT112** - Orquestrador de backup local
 4. **CT113** - Monitoring
 5. **CT114** - WireGuard VPN
 
@@ -138,13 +138,13 @@ Os discos dos containers devem seguir o perfil compacto do HP EliteDesk:
 |---|---:|
 | CT110 Web | 60 GB |
 | CT111 MySQL | 100 GB |
-| CT112 Backup | 16 GB; dados na unidade USB de 1 TB |
+| CT112 Backup local | 16 GB; dados na unidade USB de 1 TB |
 | CT113 Monitoramento | 12 GB |
 | CT114 VPN | 4 GB |
 
 A VM130 Grom_Security/Frigate recebe inicialmente 100 GB. A VM120 Home
-Assistant nao deve ser criada neste host, pois o Home Assistant sera instalado
-em outra maquina.
+Assistant nao deve ser criada neste host, pois o Home Assistant e o servidor de
+backup dedicado serao concentrados em outra maquina.
 
 ---
 
