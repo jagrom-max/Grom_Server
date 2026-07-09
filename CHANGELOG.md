@@ -16,6 +16,9 @@
 ### Migracao controlada
 - Adicionada matriz de migracao em `docs/39-MIGRACAO-HA-BACK.md` para classificar o que migrar, manter e aposentar entre `Grom_Server` e `HA_Back`.
 
+### Clarificacao de plataforma
+- Esclarecida no `README` a diferenca entre a base Debian do host Proxmox no HP e o uso de Ubuntu Server 24.04 LTS nos guests principais.
+
 ## [1.2.0] - 2026-07-06
 
 ### Plataforma HP EliteDesk

@@ -235,8 +235,9 @@ Grom_Server/
 | Camada | Tecnologia | Versão | Função |
 |---|---|---|---|
 | **Hypervisor** | Proxmox VE | 9.x | Virtualização e containers |
+| **Base do host HP** | Debian GNU/Linux via Proxmox VE | Debian 13 base do PVE 9 | Sistema bare metal do HP |
 | **Firewall** | OPNsense | Estável vigente | Firewall, IDS/IPS, separação WAN/LAN |
-| **SO Servidor** | Ubuntu Server | 24.04 LTS | Sistema operacional base |
+| **SO dos guests principais** | Ubuntu Server | 24.04 LTS | Base dos LXCs/VMs de aplicação no HP |
 | **Web Server** | Nginx | Latest | Servidor web / Reverse Proxy |
 | **PHP** | PHP-FPM | 8.3 | Grom.Seg |
 | **Python** | Python | 3.12+ | Modulos internos/OCR/APIs |
@@ -272,6 +273,10 @@ Grom_Server/
 O Home Assistant e o servidor de backup definitivo ficam juntos em uma segunda
 maquina. Ate essa segunda maquina entrar em operacao, o CT112 coordena os
 backups para a unidade USB de 1TB como camada local provisoria.
+
+No HP, o host fisico e `Proxmox VE` bare metal, portanto a base do host e
+Debian via Proxmox, nao Ubuntu. O `Ubuntu Server 24.04 LTS` permanece como
+padrao dos guests principais onde isso fizer sentido operacional.
 
 ---
 
