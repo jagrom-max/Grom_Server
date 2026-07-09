@@ -13,6 +13,9 @@
 - Formalizada a regra de desenvolvimento por maquina em `docs/38-ESTRUTURA-POR-MAQUINA.md`.
 - Preparados subdiretorios dedicados para `docs/`, `configs/` e `scripts/` de cada host.
 
+### Migracao controlada
+- Adicionada matriz de migracao em `docs/39-MIGRACAO-HA-BACK.md` para classificar o que migrar, manter e aposentar entre `Grom_Server` e `HA_Back`.
+
 ## [1.2.0] - 2026-07-06
 
 ### Plataforma HP EliteDesk

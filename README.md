@@ -21,6 +21,7 @@ O **Grom Server** é um projeto de servidor caseiro profissional, projetado para
 > `docs/30-COMUNICACAO-OFICIAL.md`, `docs/31-GO-NOGO-PRODUCAO.md`
 > `docs/32-DESENVOLVIMENTO-SEGURO-LAB.md`,
 > `docs/38-ESTRUTURA-POR-MAQUINA.md` e
+> `docs/39-MIGRACAO-HA-BACK.md` e
 > `docs/37-INVENTARIO-EVOLUCAO-HP-ELITEDESK.md`.
 
 ### Fase atual: laboratorio seguro
@@ -147,7 +148,8 @@ Grom_Server/
 │   ├── 28-CAMERAS-DVR-VIDEO.md
 │   ├── 29-GROM-SECURITY-REGRAS.md
 │   ├── 30-COMUNICACAO-OFICIAL.md
-│   └── 38-ESTRUTURA-POR-MAQUINA.md
+│   ├── 38-ESTRUTURA-POR-MAQUINA.md
+│   └── 39-MIGRACAO-HA-BACK.md
 ├── machines/                          # Desenvolvimento separado por host
 │   ├── README.md                      # Regras da divisao por maquina
 │   ├── hp-core/                       # HP EliteDesk: cerebro principal
