@@ -109,6 +109,34 @@ echo "UUID=<UUID_HD_B> /mnt/backup-external-2 ext4 defaults,nofail 0 2" >> /etc/
 > Quando a segunda maquina entrar em operacao, adicionar a replica para esse
 > host sem remover a unidade USB ate concluir teste de restore nas duas copias.
 
+## Usuario restrito de replica
+
+Quando a segunda maquina entrar em operacao, o acesso ao CT112 deve ser feito
+por um usuario dedicado de replica, nunca por `root`.
+
+Diretriz:
+- usuario sugerido: `grom-replica`;
+- autenticacao: chave SSH dedicada da segunda maquina;
+- acesso: LAN/VPN apenas;
+- permissao: leitura do caminho de backup;
+- sem `sudo`, sem tunelamento e sem reutilizar contas administrativas.
+
+Provisionamento recomendado no CT112:
+
+```bash
+bash /tmp/setup-replica-user.sh \
+  --public-key-file=/tmp/grom-ha-back.pub \
+  --user=grom-replica \
+  --source-path=/mnt/backup \
+  --source-ip=10.0.1.20
+```
+
+Script relacionado:
+
+```text
+scripts/backup/setup-replica-user.sh
+```
+
 ---
 
 ## BorgBackup - Repositórios

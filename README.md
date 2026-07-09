@@ -192,6 +192,7 @@ Grom_Server/
 │   │   ├── setup-backup.sh            # Configuração backup
 │   │   ├── backup-databases.sh        # Backup de bancos
 │   │   ├── backup-files.sh            # Backup de fontes montadas
+│   │   ├── setup-replica-user.sh      # Usuario SSH restrito para o HA_Back
 │   │   └── sync-google-drive.sh       # Sync externo criptografado opcional
 │   ├── monitoring/                    # Scripts de monitoramento
 │   │   └── setup-monitoring.sh        # Instalação monitoramento

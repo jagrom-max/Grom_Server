@@ -263,6 +263,31 @@ Somente se for usar copia externa:
 5. Validar com arquivo teste sem dados sensiveis.
 6. Executar `/usr/local/bin/sync-google-drive.sh`.
 
+## Preparar usuario de replica para o HA_Back
+
+Quando a segunda maquina estiver pronta para receber replica:
+
+1. Copiar a chave publica dedicada do `HA_Back` para o CT112.
+2. Entrar no CT112.
+3. Provisionar o usuario restrito de replica.
+
+Exemplo:
+
+```bash
+pct push 112 /root/grom-ha-back.pub /tmp/grom-ha-back.pub
+pct push 112 /root/grom-scripts/scripts/backup/setup-replica-user.sh /tmp/setup-replica-user.sh
+pct exec 112 -- bash /tmp/setup-replica-user.sh \
+  --public-key-file=/tmp/grom-ha-back.pub \
+  --user=grom-replica \
+  --source-path=/mnt/backup \
+  --source-ip=10.0.1.20
+```
+
+Objetivo:
+- permitir `pull` da replica sem usar `root`;
+- restringir acesso ao IP da segunda maquina;
+- manter o CT112 como origem controlada da copia remota.
+
 ## Testes obrigatorios
 
 Executar antes de uso real:

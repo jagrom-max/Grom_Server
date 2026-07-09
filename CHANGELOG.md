@@ -19,6 +19,10 @@
 ### Clarificacao de plataforma
 - Esclarecida no `README` a diferenca entre a base Debian do host Proxmox no HP e o uso de Ubuntu Server 24.04 LTS nos guests principais.
 
+### Integracao com HA_Back
+- Adicionado `scripts/backup/setup-replica-user.sh` para provisionar no CT112 o usuario SSH restrito `grom-replica`.
+- Atualizados `docs/07-BACKUP-STRATEGY.md` e `docs/19-RUNBOOK-PRIMEIRA-IMPLANTACAO.md` com o fluxo recomendado de replica segura entre HP e `HA_Back`.
+
 ## [1.2.0] - 2026-07-06
 
 ### Plataforma HP EliteDesk
