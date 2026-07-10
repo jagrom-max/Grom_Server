@@ -105,7 +105,7 @@ Alias: SERVERS
   10.0.1.12  # Backup
   10.0.1.13  # Monitoring
   10.0.1.14  # WireGuard
-  10.0.1.20  # Reserva futura para Home Assistant externo
+  10.0.1.20  # HA_Back / Home Assistant externo
   10.0.1.30  # Grom_Security
 
 Alias: WEB_PORTS
@@ -141,7 +141,7 @@ Para serviços acessíveis externamente:
 | 51820 | UDP | 10.0.1.14 | 51820 | WireGuard |
 
 Nao criar NAT publico para:
-- Home Assistant externo futuro `10.0.1.20`, se esta reserva for adotada;
+- HA_Back / Home Assistant externo `10.0.1.20`;
 - Grom_Security `10.0.1.30`;
 - MQTT `1883`;
 - Frigate/painel de video;

@@ -1,8 +1,8 @@
 # Cameras, DVR e video analitico
 
 Este documento define a organizacao inicial das cameras e do DVR com o
-`Grom_Security/Frigate` no HP EliteDesk. O Home Assistant sera integrado
-posteriormente a partir de outra maquina.
+`Grom_Security/Frigate` no HP EliteDesk. O `Home Assistant` fica no `HA_Back`
+e se integra a partir de outro host por rede restrita.
 
 O principio e simples: o DVR continua sendo o concentrador de cameras analogicas/HD, enquanto o `Grom_Security` faz leitura controlada dos streams para eventos, OCR, alertas e evidencias tecnicas. O servidor nao deve substituir o DVR como gravador continuo nesta fase.
 
@@ -42,7 +42,7 @@ O `Home Assistant` deve consumir estados, alertas e automacoes. O `Grom_Security
 |---|---|---|
 | DVR | `10.0.1.40` | IP fixo ou reserva DHCP |
 | Cameras IP | `10.0.1.41-10.0.1.59` | IP fixo/reserva por MAC |
-| Home Assistant | A reservar | Maquina externa futura |
+| HA_Back / Home Assistant | `10.0.1.20` sugerido | Maquina externa restrita |
 | Grom_Security | `10.0.1.30` | VM130 |
 
 Quando houver switch gerenciavel/VLAN, mover cameras e DVR para VLAN propria. Ate la, isolar por firewall, senhas fortes e acesso restrito.
@@ -149,7 +149,7 @@ propria de gravacao local.
 A unidade externa de 1 TB deve receber backups operacionais e evidencias
 selecionadas. Ela nao deve virar destino de gravacao continua, pois isso reduz
 vida util, aumenta exposicao de dados e consome espaco rapidamente. O futuro
-servidor de backup recebera uma replica adicional quando estiver disponivel.
+`HA_Back` recebera uma replica adicional quando estiver operacional.
 
 | Conteudo | Retencao inicial |
 |---|---:|

@@ -86,7 +86,7 @@ indiscriminada do Frigate.
 - restore deve ser testado antes de dados reais;
 - copia externa criptografada continua opcional.
 
-### Fase futura
+### Fase com host externo consolidado
 
 - instalar Home Assistant e o servidor de backup na segunda maquina dedicada;
 - replicar os backups do HP para esse segundo host;

@@ -2,6 +2,13 @@
 
 O dominio `grom.seg.br` esta registrado no Registro.br/Dominios.br. A configuracao DNS deve ser feita com cautela, porque ela define o que ficara exposto publicamente.
 
+Escopo atual:
+
+- este documento trata apenas de DNS publico do `hp-core` e dos servicos
+  publicados pelo `Grom_Server`;
+- o `HA_Back` e um host externo de acesso restrito por VPN/LAN e nao deve
+  receber DNS publico nesta fase.
+
 ## Decisao atual
 
 Entrada publica principal:
@@ -99,10 +106,11 @@ Portas que devem ficar bloqueadas:
 | 19999 | Netdata |
 | 3001 | Uptime Kuma |
 | 1883 | MQTT |
-| 8123 | Home Assistant |
+| 8123 | HA_Back / Home Assistant |
 | 5000/8971 | Frigate/painel de video, se usado |
 
-Home Assistant e Grom_Security nao devem receber registros DNS publicos nesta fase.
+`HA_Back`/Home Assistant e `Grom_Security` nao devem receber registros DNS
+publicos nesta fase.
 
 ## SSL/TLS
 
