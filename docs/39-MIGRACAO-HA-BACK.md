@@ -16,9 +16,27 @@ humana.
 - O `HA_Back` passa a ser dono da segunda maquina.
 - Integracoes entre os dois continuam documentadas no `Grom_Server`.
 - Conteudo exclusivo da segunda maquina deve sair gradualmente do
-  `Grom_Server`.
+  `Grom_Server` ou permanecer aqui apenas como resumo de referencia.
 - Nada deve ser apagado antes de existir versao valida e revisada no
   `HA_Back`.
+
+## Estado atual da migracao
+
+Em `2026-07-09`, a base operacional do `HA_Back` ja existe com:
+
+- arquitetura e plataforma da segunda maquina;
+- politica de storage;
+- replica dos backups do HP;
+- restore drill;
+- automacao local com `systemd`;
+- validacao local antes de empacotamento;
+- pacote remoto-first para implantacao.
+
+Com isso, o `Grom_Server` entra na fase de consolidacao:
+
+- manter aqui apenas o que pertence ao `hp-core`;
+- manter apenas resumos de integracao sobre `home-ops`;
+- evitar novos runbooks operacionais da segunda maquina neste repositorio.
 
 ## Classificacao dos artefatos
 
@@ -57,7 +75,7 @@ arquitetura compartilhada ou a integracao entre hosts:
 | `scripts/backup/*` | Ainda sao scripts do CT112 no HP, que seguem ativos na fase provisoria |
 | `scripts/proxmox/*` | Sao automacoes do HP e do Proxmox host |
 
-### Aposentar no Grom_Server, depois da migracao
+### Reduzir no Grom_Server, depois da migracao
 
 Esses trechos devem ser reduzidos ou removidos daqui somente apos o `HA_Back`
 ter sua versao consolidada:
@@ -73,17 +91,17 @@ ter sua versao consolidada:
 
 1. Migrar primeiro a documentacao da segunda maquina no `HA_Back`.
 2. Validar hardware, storage, restore e rotina de replica no `HA_Back`.
-3. Revisar o `Grom_Server` e substituir secoes detalhadas por resumos e links.
+3. Revisar o `Grom_Server` e substituir secoes detalhadas por resumos e
+   referencias ao `HA_Back`.
 4. So depois remover conteudo duplicado ou obsoleto do `Grom_Server`.
 
 ## Ordem de prioridade
 
 ### Prioridade alta
 
-- estrategia de storage da segunda maquina;
-- replica dos backups do HP;
-- restore drill do `HA_Back`;
-- runbook operacional do Home Assistant.
+- alinhar README e estrutura por ownership;
+- manter no `Grom_Server` apenas o lado HP da replica;
+- revisar documentos mistos e transformalos em documentos de integracao.
 
 ### Prioridade media
 
@@ -110,8 +128,9 @@ Um conteudo do `Grom_Server` so pode ser limpo quando:
 
 Por enquanto:
 
-- nao limpar `docs/07` nem `docs/26` agressivamente;
+- nao apagar historico util;
 - nao mover scripts do CT112 para fora do `Grom_Server`;
 - nao remover referencias a Home Assistant do ecossistema;
-- iniciar a migracao pelo `HA_Back`, mantendo o `Grom_Server` como fonte de
-  arquitetura e integracao.
+- tratar o `HA_Back` como fonte operacional da segunda maquina;
+- manter o `Grom_Server` como fonte de arquitetura do HP e integracao entre
+  hosts.

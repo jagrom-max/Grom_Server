@@ -2,6 +2,12 @@
 
 ## [1.2.1] - 2026-07-09
 
+### Consolidacao de ownership
+- Reforcado no `README` que o `Grom_Server` e o repositorio canonico do `hp-core` e que a segunda maquina `home-ops` passa a ter operacao canonica no projeto `HA_Back`.
+- Atualizados `docs/38-ESTRUTURA-POR-MAQUINA.md` e `machines/home-ops/README.md` para deixar `machines/home-ops/` neste repositorio apenas como referencia de integracao e compatibilidade historica.
+- Atualizado `docs/39-MIGRACAO-HA-BACK.md` com o estado da migracao em `2026-07-09`, registrando que o `HA_Back` ja possui base operacional propria e que o `Grom_Server` entra na fase de consolidacao do `hp-core`.
+- Atualizado `docs/26-HOME-ASSISTANT-GROM-SECURITY.md` para limitar seu escopo a fronteira de integracao entre `home-ops` e `Grom_Security`.
+
 ### Arquitetura em dois nos
 - Consolidado o HP EliteDesk como no principal do ecossistema, focado em hospedagem, borda segura, Grom.Seg e VM130 Grom_Security/Frigate.
 - Formalizada a segunda maquina dedicada para Home Assistant e servidor de backup definitivo, com papel de resiliencia e alivio de carga do HP.

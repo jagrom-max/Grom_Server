@@ -31,8 +31,10 @@ machines/
 ## Regra pratica
 
 - Arquivos exclusivos do HP devem ficar em `machines/hp-core/`.
-- Arquivos exclusivos da segunda maquina devem ficar em
-  `machines/home-ops/`.
+- Arquivos exclusivos da segunda maquina devem ficar no repositorio
+  `HA_Back`.
+- `machines/home-ops/` neste repositorio fica apenas como ponto de referencia
+  da arquitetura e da integracao entre hosts.
 - Artefatos compartilhados continuam na raiz somente enquanto forem realmente
   comuns aos dois hosts.
 - Se um componente compartilhado passar a atender apenas uma maquina, ele deve
@@ -57,6 +59,9 @@ No `home-ops`:
 - rotinas de replica de backup;
 - restore drills da segunda maquina;
 - integracoes domesticas e automacoes locais.
+
+Observacao: a partir da separacao consolidada, esse conjunto deve nascer no
+repositorio dedicado `HA_Back`, nao mais no `Grom_Server`.
 
 ## Resultado esperado
 

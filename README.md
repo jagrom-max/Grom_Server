@@ -49,6 +49,15 @@ Para acompanhar a nova arquitetura em dois nos, o repositorio passa a reservar
 maquina. Isso permite desenvolver cada host com mais liberdade, menor risco de
 mistura e melhor rastreabilidade operacional.
 
+Estado atual da separacao:
+
+- `Grom_Server` e o repositorio canonico do `hp-core`.
+- `HA_Back` e o repositorio canonico da segunda maquina `home-ops`.
+- Neste repositorio, `machines/home-ops/` permanece apenas como referencia de
+  integracao e compatibilidade historica.
+- Runbooks, scripts e validadores operacionais da segunda maquina devem nascer
+  e evoluir no projeto `HA_Back`.
+
 ### Hardware Base
 | Componente | Especificação |
 |---|---|
@@ -274,6 +283,12 @@ Grom_Server/
 O Home Assistant e o servidor de backup definitivo ficam juntos em uma segunda
 maquina. Ate essa segunda maquina entrar em operacao, o CT112 coordena os
 backups para a unidade USB de 1TB como camada local provisoria.
+
+Detalhamento operacional da segunda maquina:
+
+- repositorio canonico: `HA_Back`;
+- neste repositorio ficam apenas arquitetura compartilhada, integracao entre
+  hosts e lado HP da replica.
 
 No HP, o host fisico e `Proxmox VE` bare metal, portanto a base do host e
 Debian via Proxmox, nao Ubuntu. O `Ubuntu Server 24.04 LTS` permanece como

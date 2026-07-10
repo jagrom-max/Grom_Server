@@ -5,6 +5,14 @@ objetivo e evitar que integracoes de dispositivos, video, OCR e alertas
 fiquem misturados com o `Grom.Seg` principal e impedir sobrecarga do HP
 EliteDesk.
 
+## Escopo atual deste documento
+
+Este documento permanece no `Grom_Server` apenas para registrar a fronteira de
+integracao entre `home-ops` e `Grom_Security`.
+
+Detalhamento operacional da segunda maquina, incluindo implantacao, storage,
+replica, restore e automacoes locais, pertence agora ao projeto `HA_Back`.
+
 ## Decisao arquitetural
 
 Separar as cargas entre o HP EliteDesk atual e uma segunda maquina dedicada:
