@@ -288,6 +288,13 @@ Objetivo:
 - restringir acesso ao IP da segunda maquina;
 - manter o CT112 como origem controlada da copia remota.
 
+Escopo deste runbook:
+
+- aqui fica apenas a preparacao do lado HP;
+- a configuracao operacional do `HA_Back`, incluindo `pull`, espelho
+  secundario, timers e restore drill remoto, deve seguir o repositorio
+  dedicado `HA_Back`.
+
 ## Testes obrigatorios
 
 Executar antes de uso real:
