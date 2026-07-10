@@ -10,6 +10,7 @@
 - Reescrito `docs/07-BACKUP-STRATEGY.md` como politica de backup do lado HP, deixando a replica remota, o espelho secundario e o restore drill da segunda maquina sob ownership do `HA_Back`.
 - Atualizado `docs/19-RUNBOOK-PRIMEIRA-IMPLANTACAO.md` para deixar claro que o lado HP apenas prepara o ponto de replica, enquanto a operacao do host remoto segue o repositorio `HA_Back`.
 - Atualizado `docs/18-DIAGRAMAS-E-MATRIZES.md` para tratar o `HA_Back` como host externo consolidado, mantendo neste repositorio apenas a visao arquitetural e os fluxos de integracao entre hosts.
+- Atualizado `docs/27-GROM-SECURITY-IMPLANTACAO.md` para limitar seu papel a implantacao da VM130 e a integracao com `HA_Back`, sem carregar operacao detalhada da segunda maquina.
 
 ### Arquitetura em dois nos
 - Consolidado o HP EliteDesk como no principal do ecossistema, focado em hospedagem, borda segura, Grom.Seg e VM130 Grom_Security/Frigate.

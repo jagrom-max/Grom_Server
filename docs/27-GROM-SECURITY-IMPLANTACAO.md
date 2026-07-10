@@ -2,6 +2,17 @@
 
 O `Grom_Security` sera implantado em VM dedicada para separar video, OCR, eventos, MQTT e alertas do `Grom.Seg` principal.
 
+## Escopo atual deste documento
+
+Este documento permanece no `Grom_Server` para descrever:
+
+- a implantacao da VM130 `Grom_Security` no `hp-core`;
+- a integracao entre `Grom_Security`, `Grom.Seg`, DVR/cameras e `HA_Back`.
+
+O detalhamento operacional da segunda maquina `home-ops`, incluindo
+`Home Assistant`, storage proprio, replica recebida e restore remoto, pertence
+ao projeto `HA_Back`.
+
 ## VM
 
 | Item | Valor inicial |
@@ -188,9 +199,10 @@ Na primeira ativacao:
 - Usuario RTSP/ONVIF exclusivo de leitura, sem senha administrativa.
 - Substream para deteccao; stream principal somente para snapshot ou video curto.
 
-## Integracao com Home Assistant
+## Integracao com HA_Back / Home Assistant
 
-Home Assistant deve conectar no MQTT do `Grom_Security` quando esta for a decisao operacional:
+Quando essa for a decisao operacional, o `Home Assistant` do `HA_Back` deve
+conectar no MQTT do `Grom_Security`:
 
 ```text
 host: 10.0.1.30
@@ -206,6 +218,13 @@ grom/security/plates
 grom/security/alerts
 homeassistant/alarm
 ```
+
+Diretrizes:
+
+- o `Grom_Security` permanece dono dos topicos de seguranca;
+- o `HA_Back` consome eventos, estados e alertas para automacoes;
+- configuracao de entidades, dashboards, notificacoes e fluxos internos do
+  `Home Assistant` nao pertence a este repositorio.
 
 ## Integracao com Grom.Seg
 
@@ -236,13 +255,19 @@ O motor de regras deve publicar eventos consolidados com:
 
 ## Backup
 
+Escopo deste bloco:
+
+- aqui fica o que o `hp-core` deve preservar do `Grom_Security`;
+- a guarda secundaria remota e o restore drill do host externo seguem o
+  projeto `HA_Back`.
+
 Politica de guarda:
 
 | Tipo | Local |
 |---|---|
 | Gravacao continua | DVR Intelbras |
 | Eventos relevantes | Grom_Security |
-| Snapshots de alerta | Grom_Security + backup |
+| Snapshots de alerta | Grom_Security + backup do HP |
 | Videos curtos de intrusao | Grom_Security |
 | Evidencias importantes | Backup externo criptografado |
 
@@ -252,7 +277,7 @@ Backup obrigatorio:
 - banco de eventos;
 - snapshots marcados como relevantes.
 
-Backup seletivo:
+Backup seletivo no lado HP:
 - videos curtos de eventos.
 
 Nao fazer backup de cache temporario de video.
