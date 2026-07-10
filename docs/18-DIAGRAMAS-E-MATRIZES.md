@@ -2,6 +2,13 @@
 
 Este documento consolida a topologia, os fluxos e as matrizes que devem orientar a implantacao do Grom Server. A regra central e simples: somente HTTP/HTTPS e VPN podem atravessar a borda publica; todo o resto fica em LAN restrita ou VPN.
 
+Escopo atual:
+
+- este documento permanece como visao arquitetural do `hp-core` e da
+  integracao entre hosts;
+- o detalhamento operacional da segunda maquina `home-ops` pertence ao projeto
+  `HA_Back`.
+
 ## Topologia fisica - Fase 1
 
 ```mermaid
@@ -44,7 +51,7 @@ flowchart LR
     VPN[CT114 VPN\n10.0.1.14\nWireGuard]
     SEC[VM130 Grom_Security\n10.0.1.30]
     DVR[DVR Intelbras iMHDX 3008\n10.0.1.40]
-    HA[Home Assistant externo futuro]
+    HA[HA_Back / home-ops\n10.0.1.20 sugerido]
 
     WAN --> OPN
     OPN --> WEB
@@ -55,7 +62,7 @@ flowchart LR
     MON --> DB
     MON --> VPN
     DVR --> SEC
-    HA -. MQTT/API futura .-> SEC
+    HA -. MQTT/API restrita .-> SEC
     SEC --> WEB
     SEC --> DB
     VPN --> OPN
@@ -122,7 +129,7 @@ flowchart TD
     BAK[CT112 Backup]
     Borg[Borg repos criptografados]
     HD[HD externo A local]
-    Future[Servidor de backup futuro]
+    HAB[HA_Back / replica externa]
     Drive[Google Drive via rclone crypt - opcional]
 
     DB -->|mysqldump TLS a cada 6h| BAK
@@ -130,17 +137,18 @@ flowchart TD
     PVE -->|vzdump diario VM/LXC| HD
     BAK --> Borg
     Borg --> HD
-    HD -->|replica futura| Future
+    HD -->|replica controlada| HAB
     HD -->|copia criptografada| Drive
-    Future -->|copia externa futura| Drive
+    HAB -->|copia externa opcional no host remoto| Drive
 ```
 
 Regras:
 - Google Drive e apenas copia externa criptografada, nunca backup principal.
 - A unidade USB de 1 TB e backup, nao armazenamento de gravacao continua.
-- O futuro servidor de backup deve receber replica adicional da unidade USB.
+- O `HA_Back` deve receber replica adicional da unidade USB/CT112.
 - O primeiro restore deve ser testado antes de inserir dados reais.
 - Chaves Borg, senha Borg e senha do rclone crypt ficam fora do repositorio.
+- O restore drill do lado remoto e documentado no `HA_Back`.
 
 ## Sequencia de implantacao
 
@@ -172,7 +180,7 @@ flowchart TD
 | CT112 | grom-backup | 10.0.1.12 | Nao publico | Borg, dumps, rclone | VPN/LAN/SSH restrito |
 | CT113 | grom-monitor | 10.0.1.13 | Nao publico | Netdata, Uptime Kuma | VPN/LAN |
 | CT114 | grom-vpn | 10.0.1.14 | UDP/51820 | WireGuard | VPN/LAN/SSH restrito |
-| Externo futuro | home-assistant | A reservar | Nao publico | Home Assistant, Matter e automacoes em outra maquina | VPN/LAN |
+| Externo | home-ops / HA_Back | 10.0.1.20 sugerido | Nao publico | Home Assistant, replica dos backups do HP e automacoes | VPN/LAN |
 | VM130 | grom-security | 10.0.1.30 | Nao publico | Frigate, MQTT, video, OCR, eventos e alertas | VPN/LAN |
 | Fisico | DVR Intelbras iMHDX 3008 | 10.0.1.40 sugerido | Nao publico | Gravacao continua e origem de streams | VPN/LAN restrita |
 
@@ -190,7 +198,7 @@ flowchart TD
 | CT110 Web | CT111 DB | 3306 | TCP | Permitir com TLS | Aplicacoes acessam banco |
 | CT112 Backup | CT111 DB | 3306 | TCP | Permitir com TLS | Backup logico |
 | CT113 Monitor | CT110/CT111/CT114 | portas de servico | TCP/ICMP | Permitir minimo | Monitoramento interno |
-| Home Assistant externo futuro | VM130 Grom_Security | 1883/API conforme desenho | TCP | Permitir restrito quando instalado | MQTT/eventos |
+| HA_Back / home-ops | VM130 Grom_Security | 1883/API conforme desenho | TCP | Permitir restrito quando integrado | MQTT/eventos |
 | VM130 Grom_Security | CT110/CT111 | 443/3306 conforme desenho | TCP | Permitir restrito | API/eventos/banco |
 | VM130 Grom_Security | DVR/cameras | RTSP/ONVIF conforme equipamento | TCP/UDP | Permitir restrito | Streams de video e descoberta |
 | Internet | DVR/cameras | Qualquer | TCP/UDP | Bloquear | Sem exposicao publica |
