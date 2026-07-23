@@ -1,4 +1,4 @@
-# 🖥️ GROM SERVER - Servidor de Hospedagem Caseiro
+# 🖥️ GROM SERVER - Servidor de Hospedagem
 
 ## Infraestrutura Profissional Open Source para Hospedagem e Acesso Remoto
 
@@ -6,7 +6,7 @@
 
 ## 📋 Visão Geral do Projeto
 
-O **Grom Server** é um projeto de servidor caseiro profissional, projetado para hospedagem web, gestão documental e acesso remoto seguro, construído inteiramente com tecnologias **open source**.
+O **Grom Server** é um projeto de servidor profissional, projetado para hospedagem web, gestão documental e acesso remoto seguro, construído inteiramente com tecnologias **open source**.
 
 > **Leitura obrigatória antes da implantação**:
 > `docs/00-ARQUITETURA-SEGURA-LGPD.md`, `docs/13-CHECKLIST-PRE-IMPLANTACAO.md`
